@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 品牌色（深浅模式通用，深色略降饱和） -->
+    <color name="niu_primary">#1565C0</color>
+    <color name="niu_primary_dark">#0D47A1</color>
+    <color name="niu_primary_light">#E3F2FD</color>
+    <color name="niu_success">#43A047</color>
+    <color name="niu_error">#E53935</color>
+    <color name="niu_warning">#FB8C00</color>
+
+    <!-- 浅色模式语义色 -->
+    <color name="niu_bg">#F5F5F5</color>
+    <color name="niu_card">#FFFFFF</color>
+    <color name="niu_text">#1A1A1A</color>
+    <color name="niu_text_secondary">#666666</color>
+    <color name="niu_hint">#999999</color>
+    <color name="niu_divider">#EEEEEE</color>
+    <color name="niu_input_bg">#F5F5F5</color>
+    <color name="niu_btn_secondary_bg">#F0F0F0</color>
+    <color name="niu_btn_secondary_text">#424242</color>
+    <color name="niu_switch_off">#BDBDBD</color>
+    <color name="niu_badge_connected">#43A047</color>
+    <color name="niu_badge_disconnected">#9E9E9E</color>
+    <color name="ic_launcher_bg">#1565C0</color>
+</resources>

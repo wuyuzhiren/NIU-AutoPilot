@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/niu_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 页面标题 18sp -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="控制"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/niu_text"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- 车辆状态卡片（视觉核心） -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:id="@+id/iv_power_icon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@android:drawable/ic_lock_power_off"
+                    android:tint="@color/niu_hint"/>
+                <TextView
+                    android:id="@+id/tv_power_state"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="已关机"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/niu_hint"
+                    android:layout_marginStart="12dp"/>
+                <!-- 状态徽章 -->
+                <TextView
+                    android:id="@+id/tv_status_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="未连接"
+                    android:textSize="11sp"
+                    android:textColor="#FFFFFF"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:background="@drawable/bg_badge_disconnected"/>
+            </LinearLayout>
+
+            <!-- 详情：圆点分隔 -->
+            <TextView
+                android:id="@+id/tv_state_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="蓝牙信号: --  ●  自动模式: 未启动"
+                android:textSize="13sp"
+                android:textColor="@color/niu_text_secondary"
+                android:layout_marginTop="12dp"/>
+
+            <!-- 最近一条日志预览 -->
+            <TextView
+                android:id="@+id/tv_log_preview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="@color/niu_hint"
+                android:fontFamily="monospace"
+                android:layout_marginTop="8dp"
+                android:maxLines="2"
+                android:ellipsize="end"/>
+        </LinearLayout>
+
+        <!-- 快捷控制 2x2 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="快捷控制"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/niu_text"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <!-- 开机：蓝色主按钮 -->
+            <LinearLayout
+                android:id="@+id/btn_power_on"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_btn_primary"
+                android:layout_marginEnd="6dp"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/iv_power_on_icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@android:drawable/ic_lock_power_off"
+                    android:tint="#FFFFFF"/>
+                <TextView
+                    android:id="@+id/tv_power_on_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="开机"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+            <!-- 关机：浅灰次按钮 -->
+            <LinearLayout
+                android:id="@+id/btn_power_off"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_btn_secondary"
+                android:layout_marginStart="6dp"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/iv_power_off_icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:tint="@color/niu_btn_secondary_text"/>
+                <TextView
+                    android:id="@+id/tv_power_off_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="关机"
+                    android:textSize="14sp"
+                    android:textColor="@color/niu_btn_secondary_text"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+            <!-- 开坐桶 -->
+            <LinearLayout
+                android:id="@+id/btn_seat"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_btn_secondary"
+                android:layout_marginEnd="6dp"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:tint="@color/niu_btn_secondary_text"/>
+                <TextView
+                    android:id="@+id/tv_seat_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="开坐桶"
+                    android:textSize="14sp"
+                    android:textColor="@color/niu_btn_secondary_text"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+            <!-- 查状态 -->
+            <LinearLayout
+                android:id="@+id/btn_check_state"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_btn_secondary"
+                android:layout_marginStart="6dp"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@android:drawable/ic_menu_info_details"
+                    android:tint="@color/niu_btn_secondary_text"/>
+                <TextView
+                    android:id="@+id/tv_check_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="查状态"
+                    android:textSize="14sp"
+                    android:textColor="@color/niu_btn_secondary_text"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 自动开关机 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="自动开关机"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/niu_text"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="10dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="靠近自动开机"
+                    android:textSize="14sp"
+                    android:textColor="@color/niu_text"/>
+                <Switch android:id="@+id/sw_auto_on" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="10dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="离开自动关机"
+                    android:textSize="14sp"
+                    android:textColor="@color/niu_text"/>
+                <Switch android:id="@+id/sw_auto_off" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_auto_running"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="@color/niu_error"
+                android:gravity="center"
+                android:layout_marginTop="8dp"/>
+            <!-- 按钮不通栏，对齐卡片内边距 -->
+            <Button
+                android:id="@+id/btn_auto"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:text="启动自动模式"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/niu_primary"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

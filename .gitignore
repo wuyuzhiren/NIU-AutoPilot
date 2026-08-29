@@ -1,0 +1,20 @@
+# 构建产物
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# 官方app及提取内容（版权，不上传）
+官方app/
+_apk_extract/
+_apk_full/
+
+# 系统文件
+Thumbs.db
+desktop.ini
+.DS_Store

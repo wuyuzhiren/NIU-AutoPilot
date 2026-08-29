@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/niu_primary</item>
+        <item name="colorPrimaryDark">@color/niu_primary_dark</item>
+        <item name="colorAccent">@color/niu_primary</item>
+        <item name="android:windowBackground">@color/niu_bg</item>
+        <item name="android:statusBarColor">@color/niu_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

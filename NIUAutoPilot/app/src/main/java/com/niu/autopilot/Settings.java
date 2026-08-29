@@ -43,8 +43,9 @@ public class Settings {
     public String getServiceUuid() { return sp.getString("service_uuid", DEF_SERVICE_UUID); }
     public void setServiceUuid(String v) { sp.edit().putString("service_uuid", v).apply(); }
 
-    public int getScanIntervalSec() { return sp.getInt("scan_interval", 5); }
-    public void setScanIntervalSec(int v) { sp.edit().putInt("scan_interval", v).apply(); }
+    /** 扫描间隔（毫秒），默认500ms，范围100~5000ms */
+    public int getScanIntervalMs() { return sp.getInt("scan_interval_ms", 500); }
+    public void setScanIntervalMs(int v) { sp.edit().putInt("scan_interval_ms", v).apply(); }
 
     public int getRssiThreshold() { return sp.getInt("rssi_threshold", -60); }
     public void setRssiThreshold(int v) { sp.edit().putInt("rssi_threshold", v).apply(); }

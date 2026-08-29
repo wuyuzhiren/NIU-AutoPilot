@@ -62,16 +62,16 @@ public class SettingsFragment extends Fragment {
         ivThemeDarkCheck = view.findViewById(R.id.iv_theme_dark_check);
         vLogDot = view.findViewById(R.id.v_log_dot);
 
-        // 扫描间隔：1~30秒 (max=29, progress=value-1)
-        sbInterval.setMax(29);
+        // 扫描间隔：100~5000毫秒 (max=49, progress=(value/100)-1)
+        sbInterval.setMax(49);
         sbRssiIn.setMax(50);
         sbRssiOut.setMax(50);
         sbCooldown.setMax(57);
 
         sbInterval.setOnSeekBarChangeListener(simpleSeek(() -> {
-            int v = sbInterval.getProgress() + 1;
-            act.settings.setScanIntervalSec(v);
-            tvIntervalVal.setText(v + " 秒");
+            int v = (sbInterval.getProgress() + 1) * 100;
+            act.settings.setScanIntervalMs(v);
+            tvIntervalVal.setText(v + " 毫秒");
         }));
         sbRssiIn.setOnSeekBarChangeListener(simpleSeek(() -> {
             int v = sbRssiIn.getProgress() - 90;
@@ -96,7 +96,7 @@ public class SettingsFragment extends Fragment {
         });
         view.findViewById(R.id.entry_about).setOnClickListener(v -> new AlertDialog.Builder(act)
                 .setTitle("关于")
-                .setMessage("小牛靠近开机助手 v2.7\n\n蓝牙测距 + 官方远程命令\n副账号可用，无需蓝牙连接\n桌面小部件：4×1快捷栏 + 2×2状态件\n自动开关机：边沿触发防重复\n\n手动：开机/关机/开坐桶/查状态\n自动：靠近开机/离开关机")
+                .setMessage("小牛靠近开机助手 v2.8\n\n蓝牙测距 + 官方远程命令\n副账号可用，无需蓝牙连接\n桌面小部件：4×1快捷栏 + 2×2状态件\n自动开关机：边沿触发防重复\n\n手动：开机/关机/开坐桶/查状态\n自动：靠近开机/离开关机")
                 .setPositiveButton("确定", null)
                 .show());
 
@@ -190,11 +190,11 @@ public class SettingsFragment extends Fragment {
             tvDeviceName.setText(name);
             tvDeviceMac.setText("MAC: " + mac);
         }
-        sbInterval.setProgress(act.settings.getScanIntervalSec() - 1);
+        sbInterval.setProgress(act.settings.getScanIntervalMs() / 100 - 1);
         sbRssiIn.setProgress(act.settings.getRssiThreshold() + 90);
         sbRssiOut.setProgress(act.settings.getRssiLeaveThreshold() + 95);
         sbCooldown.setProgress(act.settings.getAutoOnCooldownSec() - 5);
-        tvIntervalVal.setText(act.settings.getScanIntervalSec() + " 秒");
+        tvIntervalVal.setText(act.settings.getScanIntervalMs() + " 毫秒");
         tvRssiInVal.setText(act.settings.getRssiThreshold() + " dBm (" + MainActivity.rssiToMeter(act.settings.getRssiThreshold()) + ")");
         tvRssiOutVal.setText(act.settings.getRssiLeaveThreshold() + " dBm (" + MainActivity.rssiToMeter(act.settings.getRssiLeaveThreshold()) + ")");
         tvCooldownVal.setText(act.settings.getAutoOnCooldownSec() + " 秒");

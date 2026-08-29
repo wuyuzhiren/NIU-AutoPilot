@@ -26,7 +26,7 @@ public class BleService extends Service {
     private static final String CHANNEL_ID = "niu_ble_channel";
     private static final int NOTIF_ID = 1001;
     public static final String ACTION_STOP = "com.niu.autopilot.STOP";
-    private static final long SCAN_DURATION_MS = 1500; // 单次扫描1.5秒
+    private static final long SCAN_DURATION_MS = 1000; // 单次扫描1.5秒
 
     private NiuBleManager ble;
     private NiuHttpClient http;
@@ -136,7 +136,7 @@ public class BleService extends Service {
     };
 
     private void scheduleNext() {
-        long interval = Math.max(1, new Settings(this).getScanIntervalSec()) * 1000L;
+        long interval = Math.max(100, new Settings(this).getScanIntervalMs());
         handler.postDelayed(loopRunnable, interval);
     }
 

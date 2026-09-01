@@ -1,6 +1,6 @@
 {
-  "versionCode": 24,
-  "versionName": "2.22",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/小牛靠近开机助手-v2.22.apk",
-  "releaseNotes": "1. 修复信号显示不重置问题\n2. 电量打开APP/切页面自动刷新\n3. 校准增加扫描设备计数和自动模式检测\n4. 新增软件自动更新功能\n5. 车辆动画移到控制页，镂空车图\n6. 桌面小部件加车辆静态图切换"
+  "versionCode": 25,
+  "versionName": "2.23",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/小牛靠近开机助手-v2.23.apk",
+  "releaseNotes": "1. 内置默认更新地址，无需手动配置\n2. 启动自动检查更新，有新版本弹窗提示\n3. 已是最新版本则静默不打扰\n4. 修复信号显示不重置问题\n5. 电量打开APP/切页面自动刷新\n6. 校准增加扫描设备计数和自动模式检测\n7. 车辆动画移到控制页，镂空车图\n8. 桌面小部件加车辆静态图切换"
 }

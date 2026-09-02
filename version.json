@@ -1,6 +1,6 @@
 {
-  "versionCode": 28,
-  "versionName": "2.26",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.26.apk",
-  "releaseNotes": "1. 小部件刷新键同时刷新电量+车辆开关机状态\n2. 自动开机/关机后自动回查状态确认并同步电量\n3. 状态变化通过广播自动同步到两个小部件和APP控制页\n4. 小部件命令发送后4秒自动回查状态，确保显示准确\n5. 控制页监听状态同步广播，自动刷新UI无需手动切换"
+  "versionCode": 29,
+  "versionName": "2.27",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.27.apk",
+  "releaseNotes": "1. 修复更新检查超时问题：内置4个镜像地址自动轮询（GitHub Raw/jsDelivr/ghproxy/mirror）\n2. 每个地址8秒快速失败，自动切换下一个，不再卡15秒\n3. 下载APK也支持多镜像自动切换，下载更稳定\n4. 下载失败自动尝试下一个镜像地址\n5. 下载文件大小验证，防止下载到错误内容"
 }

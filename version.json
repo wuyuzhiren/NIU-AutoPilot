@@ -1,6 +1,6 @@
 {
-  "versionCode": 29,
-  "versionName": "2.27",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.27.apk",
-  "releaseNotes": "1. 修复更新检查超时问题：内置4个镜像地址自动轮询（GitHub Raw/jsDelivr/ghproxy/mirror）\n2. 每个地址8秒快速失败，自动切换下一个，不再卡15秒\n3. 下载APK也支持多镜像自动切换，下载更稳定\n4. 下载失败自动尝试下一个镜像地址\n5. 下载文件大小验证，防止下载到错误内容"
+  "versionCode": 30,
+  "versionName": "2.28",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.28.apk",
+  "releaseNotes": "1. 修复智能校准\"应用参数\"后数据没变化的问题\n2. 设置页从校准页/其他页面返回时自动刷新阈值、滞回等参数显示\n3. 校准应用后回到设置页立即看到新阈值，自动模式也使用新参数"
 }

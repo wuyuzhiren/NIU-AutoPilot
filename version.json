@@ -1,1 +1,1 @@
-{"versionCode":40,"versionName":"2.38","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.38.apk","changelog":"v2.38: 新增一键诊断记录功能——APP主页加按钮，点击后记录60秒详细工作日志，每天23:00自动上传到GitHub diagnostic_logs/独立文件夹，用于分析自动开机不触发等问题"}
+{"versionCode":42,"versionName":"2.40","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.40.apk","changelog":"v2.40: 修复小部件电量百分比显示（加大电量条和文字，加黑边描边）；固定签名密钥到工程目录，避免跨环境签名不一致"}

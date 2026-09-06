@@ -1,6 +1,6 @@
 {
-  "versionCode": 36,
-  "versionName": "2.34",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.34.apk",
-  "releaseNotes": "1. 修复点击导出日志到本地导致APP崩溃重启的问题\n2. 根因：FileProvider的file_paths.xml只配置了updates和cache路径，日志导出到logs/目录不在范围内，抛出IllegalArgumentException\n3. 修复：file_paths.xml新增logs/、files_root、external_cache等路径配置\n4. 导出和上传方法整体加try-catch，任何异常都只提示不崩溃\n5. 分享面板启动失败时显示文件路径，可手动取文件\n6. 延续v2.33更新检查修复和v2.32 AI智能调参功能"
+  "versionCode": 37,
+  "versionName": "2.35",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.35.apk",
+  "releaseNotes": "1. 修复AI智能调参显示日志内容为空的问题\n2. 根因：readLogWithLimit固定跳过前20行配置头部，日志少于20行时全部被跳过\n3. 修复：智能识别第一条实际日志行（包含时间格式的行），不再固定跳过\n4. 新增选择本地日志文件：列出logs/目录下所有已导出的export_*.txt文件，直接选择\n5. 新增从GitHub加载日志：列出GitHub logs/目录下的日志文件，选择后自动下载到本地\n6. 显示当前选中日志的文件名、大小、行数\n7. 未选择日志时仍可按时间段导出，三种方式任选\n8. 延续v2.34日志导出崩溃修复和v2.33更新检查修复"
 }

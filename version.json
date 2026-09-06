@@ -1,6 +1,6 @@
 {
-  "versionCode": 35,
-  "versionName": "2.33",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.33.apk",
-  "releaseNotes": "1. 修复检查更新提示最新的问题：jsDelivr CDN缓存旧version.json导致检测不到新版本\n2. 新增api.github.com无缓存检查地址，优先使用\n3. raw和jsdelivr地址加时间戳参数绕过CDN缓存\n4. 检查地址留空时自动使用内置多镜像地址，不再提示请先填写\n5. 超时从8秒增加到10秒，提高弱网下成功率\n6. 延续v2.32 AI智能调参功能"
+  "versionCode": 36,
+  "versionName": "2.34",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.34.apk",
+  "releaseNotes": "1. 修复点击导出日志到本地导致APP崩溃重启的问题\n2. 根因：FileProvider的file_paths.xml只配置了updates和cache路径，日志导出到logs/目录不在范围内，抛出IllegalArgumentException\n3. 修复：file_paths.xml新增logs/、files_root、external_cache等路径配置\n4. 导出和上传方法整体加try-catch，任何异常都只提示不崩溃\n5. 分享面板启动失败时显示文件路径，可手动取文件\n6. 延续v2.33更新检查修复和v2.32 AI智能调参功能"
 }

@@ -1,6 +1,6 @@
 {
-  "versionCode": 34,
-  "versionName": "2.32",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.32.apk",
-  "releaseNotes": "1. 新增AI智能调参：选择日志时间段，AI自动分析并推荐最优参数\n2. 支持国内主流AI接口：硅基流动、智谱、通义千问、Moonshot、DeepSeek、零一万物、MiniMax，也可自定义\n3. 自动获取接口模型列表，可选择具体模型\n4. AI分析后显示推荐参数（靠近/离开阈值、滞回、扫描间隔、连续达标、冷却时间），用户确认后一键应用\n5. AI设置页面同时配置GitHub Token（用于日志上传）\n6. 我的页面新增AI智能调参和AI调参设置入口"
+  "versionCode": 35,
+  "versionName": "2.33",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.33.apk",
+  "releaseNotes": "1. 修复检查更新提示最新的问题：jsDelivr CDN缓存旧version.json导致检测不到新版本\n2. 新增api.github.com无缓存检查地址，优先使用\n3. raw和jsdelivr地址加时间戳参数绕过CDN缓存\n4. 检查地址留空时自动使用内置多镜像地址，不再提示请先填写\n5. 超时从8秒增加到10秒，提高弱网下成功率\n6. 延续v2.32 AI智能调参功能"
 }

@@ -1,6 +1,6 @@
 {
-  "versionCode": 32,
-  "versionName": "2.30",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.30.apk",
-  "releaseNotes": "1. 新增诊断日志系统：自动记录RSSI采样、判定细节、触发记录，可按时间段导出\n2. 日志可一键上传到GitHub（需在设置页配置GitHub Token），方便开发者分析调参\n3. 延续v2.29的高灵敏度判定：去掉中值滤波、EWMA alpha=0.8、连续1次达标\n4. 冷启动白屏修复：车辆图去白底后台异步+静态缓存\n5. 后台保活加强：从最近任务划掉时1秒自动重启服务\n6. 设置页新增GitHub Token配置和诊断日志入口"
+  "versionCode": 33,
+  "versionName": "2.31",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.31.apk",
+  "releaseNotes": "1. 修复点击诊断日志闪退的问题（LogActivity未注册到AndroidManifest）\n2. 时间选择升级：先选日期再选时间，精确到分钟\n3. 导出日志时按选择的时间段精确过滤，只保留该时段内的记录\n4. 快捷选项（今天/近3天/近7天）自动设置完整时间范围\n5. 延续v2.29+的高灵敏度判定和白屏修复"
 }

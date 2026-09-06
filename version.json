@@ -1,6 +1,6 @@
 {
-  "versionCode": 38,
-  "versionName": "2.36",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.36.apk",
-  "releaseNotes": "1. AI智能调参页面快捷选项优化：点击近1小时/近3小时/今天后，立即自动导出对应时间段的日志\n2. 导出在后台线程执行，不卡UI\n3. 导出后显示日志文件名、时间段、大小、行数，绿色高亮\n4. 无日志时红色提示，并建议选择本地或GitHub日志\n5. 导出的日志自动设为当前选中文件，可直接点AI智能分析\n6. 延续v2.35本地/GitHub日志选择和v2.34日志导出崩溃修复"
+  "versionCode": 39,
+  "versionName": "2.37",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.37.apk",
+  "releaseNotes": "1. 自动开机触发后自动刷新电量和车辆状态：小部件、状态栏通知、APP内电量同步更新\n2. 调用syncStateAndBattery查询车辆状态+极驰锐动电量，发送ACTION_STATE_SYNC广播通知所有界面刷新\n3. AI智能调参应用参数后，自动删除临时导出的export_开头日志文件，不占用存储空间\n4. 只删除临时导出文件，不删除原始按天存储的日志\n5. 延续v2.36快捷选项一键导出日志和v2.35本地/GitHub日志选择"
 }

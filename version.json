@@ -1,6 +1,6 @@
 {
-  "versionCode": 37,
-  "versionName": "2.35",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.35.apk",
-  "releaseNotes": "1. 修复AI智能调参显示日志内容为空的问题\n2. 根因：readLogWithLimit固定跳过前20行配置头部，日志少于20行时全部被跳过\n3. 修复：智能识别第一条实际日志行（包含时间格式的行），不再固定跳过\n4. 新增选择本地日志文件：列出logs/目录下所有已导出的export_*.txt文件，直接选择\n5. 新增从GitHub加载日志：列出GitHub logs/目录下的日志文件，选择后自动下载到本地\n6. 显示当前选中日志的文件名、大小、行数\n7. 未选择日志时仍可按时间段导出，三种方式任选\n8. 延续v2.34日志导出崩溃修复和v2.33更新检查修复"
+  "versionCode": 38,
+  "versionName": "2.36",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.36.apk",
+  "releaseNotes": "1. AI智能调参页面快捷选项优化：点击近1小时/近3小时/今天后，立即自动导出对应时间段的日志\n2. 导出在后台线程执行，不卡UI\n3. 导出后显示日志文件名、时间段、大小、行数，绿色高亮\n4. 无日志时红色提示，并建议选择本地或GitHub日志\n5. 导出的日志自动设为当前选中文件，可直接点AI智能分析\n6. 延续v2.35本地/GitHub日志选择和v2.34日志导出崩溃修复"
 }

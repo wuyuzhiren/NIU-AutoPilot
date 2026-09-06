@@ -1,6 +1,6 @@
 {
-  "versionCode": 31,
-  "versionName": "2.29",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.29.apk",
-  "releaseNotes": "1. 大幅优化自动开机灵敏度：去掉中值滤波（会过滤瞬时强信号），改用高灵敏度EWMA(alpha=0.8)\n2. 连续达标从2次降到1次，强信号余量从5dB降到3dB，信号复杂环境下也能触发\n3. 修复冷启动白屏几秒：车辆图去白底改后台异步+静态缓存，不再阻塞主线程\n4. 小部件静态图也加缓存，刷新不再卡顿\n5. 加强后台保活：从最近任务划掉时1秒自动重启服务\n6. 回归v2.0/v2.1的简单判定风格，信号复杂环境识别率大幅提升"
+  "versionCode": 32,
+  "versionName": "2.30",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.30.apk",
+  "releaseNotes": "1. 新增诊断日志系统：自动记录RSSI采样、判定细节、触发记录，可按时间段导出\n2. 日志可一键上传到GitHub（需在设置页配置GitHub Token），方便开发者分析调参\n3. 延续v2.29的高灵敏度判定：去掉中值滤波、EWMA alpha=0.8、连续1次达标\n4. 冷启动白屏修复：车辆图去白底后台异步+静态缓存\n5. 后台保活加强：从最近任务划掉时1秒自动重启服务\n6. 设置页新增GitHub Token配置和诊断日志入口"
 }

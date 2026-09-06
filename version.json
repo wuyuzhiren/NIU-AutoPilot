@@ -1,6 +1,1 @@
-{
-  "versionCode": 39,
-  "versionName": "2.37",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.37.apk",
-  "releaseNotes": "1. 自动开机触发后自动刷新电量和车辆状态：小部件、状态栏通知、APP内电量同步更新\n2. 调用syncStateAndBattery查询车辆状态+极驰锐动电量，发送ACTION_STATE_SYNC广播通知所有界面刷新\n3. AI智能调参应用参数后，自动删除临时导出的export_开头日志文件，不占用存储空间\n4. 只删除临时导出文件，不删除原始按天存储的日志\n5. 延续v2.36快捷选项一键导出日志和v2.35本地/GitHub日志选择"
-}
+{"versionCode":40,"versionName":"2.38","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.38.apk","changelog":"v2.38: 新增一键诊断记录功能——APP主页加按钮，点击后记录60秒详细工作日志，每天23:00自动上传到GitHub diagnostic_logs/独立文件夹，用于分析自动开机不触发等问题"}

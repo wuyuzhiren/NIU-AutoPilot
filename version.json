@@ -1,1 +1,1 @@
-{"versionCode":42,"versionName":"2.40","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.40.apk","changelog":"v2.40: 修复小部件电量百分比显示（加大电量条和文字，加黑边描边）；固定签名密钥到工程目录，避免跨环境签名不一致"}
+{"versionCode":43,"versionName":"2.41","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.41.apk","changelog":"v2.41: 修复AI智能分析日志无RSSI样本问题——BLE扫描判定现在完整记录RSSI采样和触发日志，一键诊断日志也合并到AI分析；修复我的/设置页版本号显示"}

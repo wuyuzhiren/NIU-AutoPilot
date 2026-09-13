@@ -1,1 +1,1 @@
-{"versionCode":46,"versionName":"2.44","downloadUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.44.apk","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.44.apk","changelog":"v2.44 修复更新下载问题：version.json下载地址字段对齐，检查更新后可直接下载安装"}
+{"versionCode":47,"versionName":"2.45","downloadUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.45.apk","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.45.apk","changelog":"v2.45 更新下载弹窗增加进度条与百分比显示，下载过程直观可见"}

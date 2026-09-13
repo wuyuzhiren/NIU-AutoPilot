@@ -1,1 +1,1 @@
-{"versionCode":48,"versionName":"2.46","downloadUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.46.apk","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.46.apk","changelog":"v2.46 关于/我的页版本号改为动态显示，与安装版本自动同步"}
+{"versionCode":49,"versionName":"2.47","downloadUrl":"https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.47.apk","apkUrl":"https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.47.apk","changelog":"v2.47 修复下载超时：优先走jsdelivr CDN镜像，多线路自动轮询"}

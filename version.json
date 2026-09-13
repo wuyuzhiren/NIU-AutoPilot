@@ -1,1 +1,1 @@
-{"versionCode":45,"versionName":"2.43","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.43.apk","changelog":"v2.43 四步闭环校准+验证：标定→采样→拟合→触发验证全流程；验证成功/偏差/失败三种结果分支；快速模式(5米/10组)；验证成功自动应用；保存家/公司/地库地点；校准历史最近5次可一键回退；控制页显示上次校准、设置页显示参数来源；返回确认弹窗、2分钟无操作自动退出"}
+{"versionCode":46,"versionName":"2.44","downloadUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.44.apk","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.44.apk","changelog":"v2.44 修复更新下载问题：version.json下载地址字段对齐，检查更新后可直接下载安装"}

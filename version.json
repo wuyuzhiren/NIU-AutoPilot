@@ -1,1 +1,1 @@
-{"versionCode":43,"versionName":"2.41","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.41.apk","changelog":"v2.41: 修复AI智能分析日志无RSSI样本问题——BLE扫描判定现在完整记录RSSI采样和触发日志，一键诊断日志也合并到AI分析；修复我的/设置页版本号显示"}
+{"versionCode":44,"versionName":"2.42","apkUrl":"https://github.com/wuyuzhiren/NIU-AutoPilot/raw/main/releases/app-v2.42.apk","changelog":"v2.42 可视化引导式智能校准：三步流程（站车旁标定基准点→向外行走采样→最小二乘拟合RSSI衰减模型自动推荐阈值），支持GPS定位、信号质量提示、每5米震动、异常数据自动过滤、校准历史回退；控制页与AI设置页新增校准入口"}

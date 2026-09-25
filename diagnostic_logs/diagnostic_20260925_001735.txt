@@ -1,0 +1,30 @@
+=== 小牛靠近开机助手 一键诊断日志 ===
+诊断开始: 2026-09-25 00:17:35
+诊断时长: 60 秒
+
+=== 当前配置 ===
+靠近阈值: -64 dBm
+离开阈值: -76 dBm
+滞回区间: 12 dB
+扫描间隔: 900 ms
+连续达标: 3 次
+冷却时间: 30 秒
+滤波窗口: 3
+自动开机: true
+自动关机: false
+目标MAC: 54:88:FE:42:69:74
+目标名称: NIU Link 6974
+车辆状态: 已关机
+
+=== 诊断数据（时间 | 类型 | 详情） ===
+00:17:35.547 | DIAG | 开始诊断记录，时长 60 秒，文件: diagnostic_20260925_001735.txt
+00:17:35.983 | RSSI | raw=-62 smooth=-62.8 near=-64 far=-76 consec=1 nearOk=N farOk=N
+00:17:36.888 | RSSI | raw=-64 smooth=-63.8 near=-64 far=-76 consec=2 nearOk=N farOk=N
+00:17:37.792 | RSSI | raw=-61 smooth=-61.6 near=-64 far=-76 consec=3 nearOk=Y farOk=N
+00:17:38.694 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+00:17:39.602 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+00:18:35.580 | DIAG | 诊断记录结束，实际时长 60 秒
+
+=== 诊断结束 ===
+实际时长: 60 秒
+文件大小: 992 字节

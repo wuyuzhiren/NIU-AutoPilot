@@ -22,4 +22,48 @@
     <color name="niu_badge_connected">#66BB6A</color>
     <color name="niu_badge_disconnected">#616161</color>
     <color name="ic_launcher_bg">#1E88E5</color>
+
+    <!-- v2.67 科幻HUD色板：深空HUD（深色基准） -->
+    <color name="sci_bg">#0A0E17</color>
+    <color name="sci_panel">#111827</color>
+    <color name="sci_border">#1E3A5F</color>
+    <color name="sci_energy">#00D4FF</color>
+    <color name="sci_orange">#FF6B35</color>
+    <color name="sci_green">#10B981</color>
+    <color name="sci_red">#EF4444</color>
+    <color name="sci_text">#F1F5F9</color>
+    <color name="sci_text_dim">#94A3B8</color>
+
+    <!-- v1.1 车辆动画组件配色：深空HUD（深色基准） -->
+    <color name="vehicle_bg_deep_space">#0A0E17</color>
+    <color name="vehicle_panel_bg">#111827</color>
+    <color name="vehicle_panel_stroke">#1E3A5F</color>
+    <color name="vehicle_stage_bg">#0A0E17</color>
+    <color name="vehicle_ground_glow">#0D000000</color>
+    <color name="vehicle_outline_disconnected">#334155</color>
+    <color name="vehicle_energy_blue">#00D4FF</color>
+    <color name="vehicle_energy_orange">#FF6B35</color>
+    <color name="vehicle_signal_green">#10B981</color>
+    <color name="vehicle_alert_red">#EF4444</color>
+    <color name="vehicle_text_primary">#F1F5F9</color>
+    <color name="vehicle_text_secondary">#94A3B8</color>
+    <color name="vehicle_glow_blue">#4D00D4FF</color>
+    <color name="vehicle_glow_orange">#4DFF6B35</color>
+    <color name="vehicle_phantom_purple">#6B46C1</color>
+    <color name="vehicle_phantom_purple_dark">#4C1D95</color>
+    <color name="vehicle_phantom_purple_light">#A78BFA</color>
+    <color name="vehicle_button_bg">#1E293B</color>
+    <color name="vehicle_button_bg_pressed">#334155</color>
+    <color name="vehicle_button_stroke">#334155</color>
+    <color name="vehicle_button_stroke_active">#00D4FF</color>
+    <color name="vehicle_scan_line">#3300D4FF</color>
+    <color name="vehicle_grid_line">#0D1E3A5F</color>
+    <color name="vehicle_glass_bg">#B8111827</color>
+    <color name="vehicle_glass_stroke">#801E3A5F</color>
+    <!-- v2.2 舞台/徽章深色（深空HUD） -->
+    <color name="sci_badge_bg">#33111827</color>
+    <color name="sci_badge_stroke">#6600D4FF</color>
+    <color name="sci_stage_start">#FF0A0E17</color>
+    <color name="sci_stage_end">#FF0D1526</color>
+    <color name="sci_shadow">#6600D4FF</color>
 </resources>

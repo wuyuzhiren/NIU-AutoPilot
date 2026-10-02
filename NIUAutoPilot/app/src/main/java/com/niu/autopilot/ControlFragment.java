@@ -101,6 +101,8 @@ public class ControlFragment extends Fragment {
         vehicleStateMachine = new VehicleStateMachine();
         vehicleAnimation = new VehicleAnimationController(vehicleStage, vehicleStateMachine, null);
         vehicleStage.setBodyImageResource(R.drawable.nx_body);
+        // v2.75 坐桶图层：与车身同坐标系叠加，开坐桶时弹开
+        vehicleStage.setBucketImageResource(R.drawable.nx_bucket);
         // 按现有素材微调灯光点位（紫色小牛NX 45°斜前视角）
         vehicleStage.setLightPoints(java.util.Arrays.asList(
                 new VehicleLightPoint(VehicleLightPoint.Type.HEADLAMP_LEFT, 0.18f, 0.42f, 5f, 20f, 0xFFFFFFFF, 0.95f),
@@ -255,6 +257,11 @@ public class ControlFragment extends Fragment {
                 vehicleStage.setBodySaturation(1f);
                 vehicleStage.setBodyBrightness(1f);
                 vehicleStage.setGlowAlpha(1f);
+                // v2.75 开机状态：大灯光束点亮，坐桶闭合
+                vehicleStage.setBeamAlpha(0.9f);
+                vehicleStage.setBucketVisible(0f);
+                vehicleStage.setBucketLiftDp(0f);
+                vehicleStage.setBucketRotationDeg(0f);
             }
         } else {
             if (cur != VehicleState.Standby.INSTANCE && cur != VehicleState.Offline.INSTANCE) {
@@ -266,6 +273,11 @@ public class ControlFragment extends Fragment {
                 vehicleStage.setRingAlpha(0f);
                 vehicleStage.setRingScale(0f);
                 vehicleStage.setFloatOffsetDp(0f);
+                // v2.75 关机状态：光束熄灭，坐桶闭合
+                vehicleStage.setBeamAlpha(0f);
+                vehicleStage.setBucketVisible(0f);
+                vehicleStage.setBucketLiftDp(0f);
+                vehicleStage.setBucketRotationDeg(0f);
             }
         }
     }

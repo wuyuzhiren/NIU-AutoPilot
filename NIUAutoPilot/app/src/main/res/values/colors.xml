@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 品牌色（深浅模式通用，深色略降饱和） -->
+    <!-- 品牌色 -->
     <color name="niu_primary">#1565C0</color>
     <color name="niu_primary_dark">#0D47A1</color>
     <color name="niu_primary_light">#E3F2FD</color>
@@ -22,4 +22,66 @@
     <color name="niu_badge_connected">#43A047</color>
     <color name="niu_badge_disconnected">#9E9E9E</color>
     <color name="ic_launcher_bg">#1565C0</color>
+
+    <!-- v2.39 新增：渐变色 -->
+    <color name="niu_gradient_start">#1565C0</color>
+    <color name="niu_gradient_end">#0D47A1</color>
+    <color name="niu_green_start">#43A047</color>
+    <color name="niu_green_end">#2E7D32</color>
+    <color name="niu_red_start">#E53935</color>
+    <color name="niu_red_end">#C62828</color>
+    <color name="niu_orange_start">#FB8C00</color>
+    <color name="niu_orange_end">#EF6C00</color>
+    <color name="niu_purple_start">#7C4DFF</color>
+    <color name="niu_purple_end">#651FFF</color>
+    <color name="niu_card_shadow">#0A000000</color>
+    <color name="niu_bottom_nav_active">#1565C0</color>
+    <color name="niu_bottom_nav_inactive">#9E9E9E</color>
+    <color name="niu_battery_green">#4CAF50</color>
+    <color name="niu_battery_yellow">#FFC107</color>
+    <color name="niu_battery_red">#F44336</color>
+
+    <!-- v2.67 科幻HUD色板：values=白昼太空舱（浅色基准），深空HUD 见 values-night -->
+    <color name="sci_bg">#F0F4F8</color>
+    <color name="sci_panel">#FFFFFF</color>
+    <color name="sci_border">#D1D9E6</color>
+    <color name="sci_energy">#7C3AED</color>
+    <color name="sci_orange">#EA580C</color>
+    <color name="sci_green">#059669</color>
+    <color name="sci_red">#DC2626</color>
+    <color name="sci_text">#1E293B</color>
+    <color name="sci_text_dim">#64748B</color>
+
+    <!-- v1.1 车辆动画组件配色：浅色基准（白昼太空舱），深空HUD 见 values-night -->
+    <color name="vehicle_bg_deep_space">#F0F4F8</color>
+    <color name="vehicle_panel_bg">#FFFFFF</color>
+    <color name="vehicle_panel_stroke">#D1D9E6</color>
+    <color name="vehicle_energy_blue">#7C3AED</color>
+    <color name="vehicle_energy_orange">#EA580C</color>
+    <color name="vehicle_signal_green">#059669</color>
+    <color name="vehicle_alert_red">#DC2626</color>
+    <color name="vehicle_text_primary">#1E293B</color>
+    <color name="vehicle_text_secondary">#64748B</color>
+    <color name="vehicle_glow_blue">#267C3AED</color>
+    <color name="vehicle_glow_orange">#26EA580C</color>
+    <color name="vehicle_phantom_purple">#7C3AED</color>
+    <color name="vehicle_phantom_purple_dark">#5B21B6</color>
+    <color name="vehicle_phantom_purple_light">#A78BFA</color>
+    <color name="vehicle_button_bg">#F1F5F9</color>
+    <color name="vehicle_button_bg_pressed">#E2E8F0</color>
+    <color name="vehicle_button_stroke">#CBD5E1</color>
+    <color name="vehicle_button_stroke_active">#7C3AED</color>
+    <color name="vehicle_scan_line">#267C3AED</color>
+    <color name="vehicle_grid_line">#0DD1D9E6</color>
+    <color name="vehicle_stage_bg">#E8EDF3</color>
+    <color name="vehicle_ground_glow">#143C2850</color>
+    <color name="vehicle_outline_disconnected">#C4B5D4</color>
+    <color name="vehicle_glass_bg">#B8FFFFFF</color>
+    <color name="vehicle_glass_stroke">#CCD1D9E6</color>
+    <!-- v2.2 舞台/徽章浅色（白昼太空舱） -->
+    <color name="sci_badge_bg">#33FFFFFF</color>
+    <color name="sci_badge_stroke">#667C3AED</color>
+    <color name="sci_stage_start">#FFE8EDF3</color>
+    <color name="sci_stage_end">#FFD9E2F0</color>
+    <color name="sci_shadow">#667C3AED</color>
 </resources>

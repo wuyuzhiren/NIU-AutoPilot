@@ -39,6 +39,16 @@ class VehicleStageView @JvmOverloads constructor(
         scaleType = ImageView.ScaleType.FIT_CENTER
     }
 
+    /**
+     * 坐桶图层（nx_bucket.png）：与车身同坐标系叠加。
+     * 默认 GONE；开坐桶动画时显示并弹开，关闭后隐藏。
+     */
+    private val bucketImage: ImageView = ImageView(context).apply {
+        layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        visibility = View.GONE
+    }
+
     private val overlay: OverlayView = OverlayView(context)
 
     // ==================== 公开属性 ====================
@@ -103,6 +113,52 @@ class VehicleStageView @JvmOverloads constructor(
 
     var enableRingRotation: Boolean = DeviceCapability.enableRotatingRing(context)
 
+    // ==================== 光束 / 坐桶弹开属性（v2.75 新增）====================
+    /**
+     * 大灯光束透明度 0~1。开机动画结束后保持常亮，关机动画置 0。
+     */
+    var beamAlpha: Float = 0f
+        set(value) {
+            field = value.coerceIn(0f, 1f)
+            overlay.invalidate()
+        }
+
+    /**
+     * 坐桶图层可见度：0 隐藏，>0 显示（用于弹开动画插值）。
+     */
+    var bucketVisible: Float = 0f
+        set(value) {
+            field = value.coerceIn(0f, 1f)
+            bucketImage.alpha = field
+            bucketImage.visibility = if (field > 0.01f) View.VISIBLE else View.GONE
+            overlay.invalidate()
+        }
+
+    /**
+     * 坐桶图层弹开位移（dp，负值=向上弹起），模拟坐垫以尾部铰链掀开。
+     */
+    var bucketLiftDp: Float = 0f
+        set(value) {
+            field = value
+            bucketImage.translationY = dpToPx(value)
+            bucketImage.translationX = dpToPx(value * 0.18f)
+        }
+
+    /**
+     * 坐桶图层旋转角（度），铰链在尾部（约整车 60% 宽、38% 高位置），模拟掀开。
+     */
+    var bucketRotationDeg: Float = 0f
+        set(value) {
+            field = value
+            val w = bucketImage.width
+            val h = bucketImage.height
+            // 尾部铰链：位于图片 60% 宽、38% 高处（贴合坐垫尾部位置）
+            bucketImage.pivotX = if (w > 0) w * 0.62f else 0f
+            bucketImage.pivotY = if (h > 0) h * 0.38f else 0f
+            bucketImage.rotation = value
+            bucketImage.invalidate()
+        }
+
     // ==================== 主题感知属性（新增）====================
     /**
      * 当前主题强调色。
@@ -149,7 +205,9 @@ class VehicleStageView @JvmOverloads constructor(
 
     init {
         addView(bodyImage)
-        addView(overlay, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        // 坐桶图层置于车身之上（zIndex 更高）
+        addView(bucketImage, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply { z = 1f })
+        addView(overlay, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply { z = 2f })
         applyBodyVisuals()
         if (enableRingRotation) startRingRotation()
     }
@@ -162,6 +220,14 @@ class VehicleStageView @JvmOverloads constructor(
 
     fun setBodyImageBitmap(bitmap: Bitmap) {
         bodyImage.setImageBitmap(bitmap)
+    }
+
+    fun setBucketImageResource(resId: Int) {
+        bucketImage.setImageResource(resId)
+    }
+
+    fun setBucketImageBitmap(bitmap: Bitmap) {
+        bucketImage.setImageBitmap(bitmap)
     }
 
     fun setLightAlpha(type: VehicleLightPoint.Type, alpha: Float) {
@@ -215,6 +281,8 @@ class VehicleStageView @JvmOverloads constructor(
         stopRingRotation()
         bodyImage.animate().cancel()
         bodyImage.setImageDrawable(null)
+        bucketImage.animate().cancel()
+        bucketImage.setImageDrawable(null)
     }
 
     // ==================== 内部方法 ====================
@@ -271,6 +339,7 @@ class VehicleStageView @JvmOverloads constructor(
             if (enableScanLine) drawScanLine(canvas, w, h)
             drawRadarRings(canvas, w, h)
             drawLightPoints(canvas, w, h)
+            drawBeam(canvas, w, h)
         }
 
         /** 底座光晕：椭圆径向渐变 — 使用 themeAccentColor */
@@ -401,6 +470,56 @@ class VehicleStageView @JvmOverloads constructor(
                     canvas.drawCircle(px, py, radius * 0.4f, lightPaint)
                 }
             }
+        }
+
+        /** 大灯光束：从车头大灯向右前方延伸的渐变光锥（模拟开机亮灯） */
+        private val beamPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+        private var cachedBeamShader: LinearGradient? = null
+        private var cachedBeamAlpha = -1f
+        private var cachedBeamLight = false
+
+        private fun drawBeam(canvas: Canvas, w: Float, h: Float) {
+            if (beamAlpha <= 0.01f) return
+            // 车头大灯位置（HEADLAMP_LEFT 点位），光束从该点向右前方展开
+            val headLamp = lightPoints.firstOrNull { it.type == VehicleLightPoint.Type.HEADLAMP_LEFT }
+            val hx = w * (headLamp?.relX ?: 0.22f)
+            val hy = h * (headLamp?.relY ?: 0.42f)
+            // 光束长度与宽度（相对画布）
+            val beamLen = w * 0.46f
+            val baseWidth = w * 0.05f
+            val tipWidth = w * 0.13f
+
+            // 梯形光锥：从大灯向外放射，末端渐宽
+            val path = Path()
+            path.moveTo(hx, hy - baseWidth / 2f)
+            path.lineTo(hx + beamLen, hy - tipWidth / 2f + beamLen * 0.12f)
+            path.lineTo(hx + beamLen, hy + tipWidth / 2f + beamLen * 0.12f)
+            path.lineTo(hx, hy + baseWidth / 2f)
+            path.close()
+
+            // 光锥内渐变：根部亮，末端透明
+            val accent = themeAccentColor
+            val r = Color.red(accent)
+            val g = Color.green(accent)
+            val b = Color.blue(accent)
+            val alphaMul = if (isLightTheme) 0.5f else 0.75f
+            if (cachedBeamShader == null || cachedBeamAlpha != beamAlpha || cachedBeamLight != isLightTheme) {
+                cachedBeamShader = LinearGradient(
+                    hx, hy, hx + beamLen, hy + beamLen * 0.2f,
+                    intArrayOf(
+                        Color.argb((255 * beamAlpha * alphaMul).toInt(), (r + 140).coerceAtMost(255), (g + 120).coerceAtMost(255), 255),
+                        Color.argb((120 * beamAlpha * alphaMul).toInt(), r, g, b),
+                        Color.TRANSPARENT
+                    ),
+                    floatArrayOf(0f, 0.45f, 1f),
+                    Shader.TileMode.CLAMP
+                )
+                cachedBeamAlpha = beamAlpha
+                cachedBeamLight = isLightTheme
+            }
+            beamPaint.shader = cachedBeamShader
+            canvas.drawPath(path, beamPaint)
+            beamPaint.shader = null
         }
     }
 }

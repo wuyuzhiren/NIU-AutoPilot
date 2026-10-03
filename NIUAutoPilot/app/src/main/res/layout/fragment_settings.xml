@@ -70,7 +70,6 @@
                         android:layout_marginTop="2dp"/>
                 </LinearLayout>
             </LinearLayout>
-            <!-- 描边按钮，弱化视觉 -->
             <Button
                 android:id="@+id/btn_scan_dev"
                 android:layout_width="match_parent"
@@ -80,6 +79,70 @@
                 android:textSize="14sp"
                 android:textColor="@color/niu_primary"
                 android:background="@drawable/bg_btn_outline"/>
+
+            <Button
+                android:id="@+id/btn_calibrate"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="10dp"
+                android:text="📏 智能校准（自动推荐靠近/离开阈值）"
+                android:textSize="14sp"
+                android:textColor="@color/niu_primary"
+                android:background="@drawable/bg_btn_outline"/>
+
+<TextView
+                android:id="@+id/tv_param_source"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="当前参数: --"
+                android:textSize="11sp"
+                android:textColor="@color/niu_hint"
+                android:gravity="center"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/btn_calib_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="校准历史（最近5次，可回退）"
+                android:textSize="13sp"
+                android:textColor="@color/niu_primary"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"/>
+
+
+            <TextView
+                android:id="@+id/btn_scene_mgr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="场景管理（校准结果一键保存/切换）"
+                android:textSize="13sp"
+                android:textColor="@color/niu_primary"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"/>
+<LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="6dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="快速校准模式（5米/10组）" android:textSize="13sp" android:textColor="@color/niu_text"/>
+                <Switch android:id="@+id/sw_quick_calib" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="2dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="验证成功自动应用" android:textSize="13sp" android:textColor="@color/niu_text"/>
+                <Switch android:id="@+id/sw_auto_apply" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
         </LinearLayout>
 
         <!-- 检测参数 -->
@@ -105,13 +168,13 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginBottom="4dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="扫描间隔" android:textSize="14sp" android:textColor="@color/niu_text"/>
-                <TextView android:id="@+id/tv_interval_val" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="500 毫秒" android:textSize="14sp" android:textColor="@color/niu_primary" android:textStyle="bold"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="扫描时长" android:textSize="14sp" android:textColor="@color/niu_text"/>
+                <TextView android:id="@+id/tv_interval_val" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="700 毫秒" android:textSize="14sp" android:textColor="@color/niu_primary" android:textStyle="bold"/>
             </LinearLayout>
             <SeekBar android:id="@+id/sb_interval" android:layout_width="match_parent" android:layout_height="wrap_content" android:progressTint="@color/niu_primary" android:thumbTint="@color/niu_primary"/>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="短(灵敏)" android:textSize="11sp" android:textColor="@color/niu_hint"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="长(省电)" android:textSize="11sp" android:textColor="@color/niu_hint"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="短(响应快)" android:textSize="11sp" android:textColor="@color/niu_hint"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="长(更稳定)" android:textSize="11sp" android:textColor="@color/niu_hint"/>
             </LinearLayout>
 
             <LinearLayout
@@ -135,13 +198,13 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginBottom="4dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="离开阈值" android:textSize="14sp" android:textColor="@color/niu_text"/>
-                <TextView android:id="@+id/tv_rssi_out_val" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-80 dBm" android:textSize="14sp" android:textColor="@color/niu_primary" android:textStyle="bold"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="滞回区间" android:textSize="14sp" android:textColor="@color/niu_text"/>
+                <TextView android:id="@+id/tv_hysteresis_val" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20 dBm（-80 ~ -60）" android:textSize="14sp" android:textColor="@color/niu_primary" android:textStyle="bold"/>
             </LinearLayout>
-            <SeekBar android:id="@+id/sb_rssi_out" android:layout_width="match_parent" android:layout_height="wrap_content" android:progressTint="@color/niu_primary" android:thumbTint="@color/niu_primary"/>
+            <SeekBar android:id="@+id/sb_hysteresis" android:layout_width="match_parent" android:layout_height="wrap_content" android:progressTint="@color/niu_primary" android:thumbTint="@color/niu_primary"/>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="远" android:textSize="11sp" android:textColor="@color/niu_hint"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="近" android:textSize="11sp" android:textColor="@color/niu_hint"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="窄(灵敏)" android:textSize="11sp" android:textColor="@color/niu_hint"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="宽(稳定)" android:textSize="11sp" android:textColor="@color/niu_hint"/>
             </LinearLayout>
 
             <LinearLayout
@@ -158,6 +221,257 @@
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="短" android:textSize="11sp" android:textColor="@color/niu_hint"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="长" android:textSize="11sp" android:textColor="@color/niu_hint"/>
             </LinearLayout>
+
+            <!-- 信号滤波窗口 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="4dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="信号滤波窗口" android:textSize="14sp" android:textColor="@color/niu_text"/>
+                <TextView android:id="@+id/tv_filter_val" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3 点" android:textSize="14sp" android:textColor="@color/niu_primary" android:textStyle="bold"/>
+            </LinearLayout>
+            <SeekBar android:id="@+id/sb_filter" android:layout_width="match_parent" android:layout_height="wrap_content" android:progressTint="@color/niu_primary" android:thumbTint="@color/niu_primary"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="小(灵敏)" android:textSize="11sp" android:textColor="@color/niu_hint"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="大(平滑)" android:textSize="11sp" android:textColor="@color/niu_hint"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_reset_params"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="重置检测参数（默认：时长700ms / 靠近-60 / 滞回20 / 冷却30s）"
+                android:textSize="12sp"
+                android:textColor="@color/niu_primary"
+                android:background="@drawable/bg_btn_outline"
+                android:layout_marginTop="12dp"/>
+        </LinearLayout>
+
+        <!-- 场景模式 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="场景模式"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/niu_text"
+            android:layout_marginBottom="10dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="20dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+                <Button android:id="@+id/btn_preset_aggressive" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="激进" android:textSize="13sp" android:textColor="@color/niu_text" android:background="@drawable/bg_btn_outline" android:layout_marginEnd="4dp"/>
+                <Button android:id="@+id/btn_preset_balanced" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="均衡" android:textSize="13sp" android:textColor="#FFFFFF" android:backgroundTint="@color/niu_primary" android:layout_marginEnd="4dp"/>
+                <Button android:id="@+id/btn_preset_stable" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="稳定" android:textSize="13sp" android:textColor="@color/niu_text" android:background="@drawable/bg_btn_outline"/>
+            </LinearLayout>
+            <TextView android:id="@+id/tv_preset_desc" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="均衡模式：靠近-60dBm / 滞回20 / 连续2次 / 冷却30s" android:textSize="12sp" android:textColor="@color/niu_hint"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/niu_divider" android:layout_marginVertical="12dp"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="触发时震动反馈" android:textSize="14sp" android:textColor="@color/niu_text"/>
+                <Switch android:id="@+id/sw_vibration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="2dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="触发时声音提示（开机双响/关机长鸣）" android:textSize="14sp" android:textColor="@color/niu_text"/>
+                <Switch android:id="@+id/sw_sound" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 电池电量（极驰锐动） -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="电池电量（极驰锐动租电）"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/niu_text"
+            android:layout_marginBottom="10dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="20dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="电池平台（换电池后在此切换）" android:textSize="13sp" android:textColor="@color/niu_hint"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
+                <Button
+                    android:id="@+id/btn_platform_jichi"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:text="极驰锐动"
+                    android:textSize="12sp"
+                    android:layout_marginEnd="4dp"/>
+                <Button
+                    android:id="@+id/btn_platform_hello"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:text="哈啰"
+                    android:textSize="12sp"
+                    android:layout_marginEnd="4dp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
+                <Button
+                    android:id="@+id/btn_platform_xinneng"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:text="鑫能出行"
+                    android:textSize="12sp"
+                    android:layout_marginEnd="4dp"/>
+                <Button
+                    android:id="@+id/btn_platform_custom"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:text="自定义API"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+            <EditText
+                android:id="@+id/et_battery_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="接口 URL（GET，如 https://xxx/realTime/soc）"
+                android:inputType="textUri"
+                android:textSize="11sp"
+                android:background="@drawable/bg_btn_outline"
+                android:padding="8dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"/>
+            <EditText
+                android:id="@+id/et_battery_device_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="鑫能电池ID（抓包 device/detail?idDevice=xxx 的 xxx）"
+                android:inputType="text"
+                android:textSize="11sp"
+                android:background="@drawable/bg_btn_outline"
+                android:padding="8dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"/>
+            <EditText
+                android:id="@+id/et_battery_appid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="鑫能 appId（抓包请求头，留空用默认 wxe6f87fdd010fce3e）"
+                android:inputType="text"
+                android:textSize="11sp"
+                android:background="@drawable/bg_btn_outline"
+                android:padding="8dp"
+                android:layout_marginTop="6dp"
+                android:visibility="gone"/>
+            <EditText
+                android:id="@+id/et_battery_sign"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="鑫能 sign（抓包请求头，留空则不发送；默认 GYXNKJHD）"
+                android:inputType="text"
+                android:textSize="11sp"
+                android:background="@drawable/bg_btn_outline"
+                android:padding="8dp"
+                android:layout_marginTop="6dp"
+                android:visibility="gone"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="当前电量" android:textSize="14sp" android:textColor="@color/niu_text"/>
+                <TextView android:id="@+id/tv_battery_set" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="未同步" android:textSize="16sp" android:textColor="@color/niu_hint" android:textStyle="bold"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp">
+                <EditText
+                    android:id="@+id/et_battery_manual"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:hint="输入电量 0~100"
+                    android:inputType="number"
+                    android:textSize="14sp"
+                    android:background="@drawable/bg_btn_outline"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginEnd="8dp"/>
+                <Button
+                    android:id="@+id/btn_battery_manual"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:text="手动录入"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="@color/niu_primary"/>
+            </LinearLayout>
+            <EditText
+                android:id="@+id/et_battery_token"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="粘贴极驰锐动 token（Charles 抓 Authorization 值）"
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:textSize="11sp"
+                android:background="@drawable/bg_btn_outline"
+                android:padding="8dp"
+                android:layout_marginTop="10dp"
+                android:minLines="2"
+                android:maxLines="3"/>
+            <Button
+                android:id="@+id/btn_save_token"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="保存 token"
+                android:textSize="13sp"
+                android:textColor="@color/niu_primary"
+                android:background="@drawable/bg_btn_outline"
+                android:layout_marginTop="6dp"/>
+            <Button
+                android:id="@+id/btn_battery_sync"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="10dp"
+                android:text="从极驰锐动同步"
+                android:textSize="14sp"
+                android:textColor="@color/niu_primary"
+                android:background="@drawable/bg_btn_outline"/>
+            <Button
+                android:id="@+id/btn_scan_token"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:text="📱 扫码导入 token"
+                android:textSize="14sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/niu_primary"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="电量显示在小程序「极驰锐动」。粘贴 token 后点「从极驰锐动同步」即可自动读取；token 过期后重新抓包更新。扫码导入更快捷，见按钮说明。"
+                android:textSize="11sp"
+                android:textColor="@color/niu_hint"
+                android:layout_marginTop="10dp"
+                android:lineSpacingExtra="3dp"/>
         </LinearLayout>
 
         <!-- 显示设置（深色模式） -->
@@ -239,6 +553,46 @@
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=">" android:textSize="16sp" android:textColor="@color/niu_hint"/>
             </LinearLayout>
             <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/niu_divider" android:layout_marginStart="16dp"/>
+
+            <!-- v2.22 软件更新 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="软件更新" android:textSize="14sp" android:textStyle="bold" android:textColor="@color/niu_text" android:layout_marginBottom="8dp"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="版本检查地址（JSON）" android:textSize="12sp" android:textColor="@color/niu_text_secondary" android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/et_update_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_input"
+                    android:paddingHorizontal="12dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/niu_text"
+                    android:hint="https://xxx.com/version.json"
+                    android:textColorHint="@color/niu_hint"
+                    android:inputType="textUri"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="启动时自动检查更新" android:textSize="13sp" android:textColor="@color/niu_text"/>
+                    <Switch android:id="@+id/sw_auto_update" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <Button
+                    android:id="@+id/btn_check_update"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="10dp"
+                    android:text="检查更新"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="@color/niu_primary"/>
+            </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/entry_about"
                 android:layout_width="match_parent"
@@ -250,9 +604,8 @@
                 android:focusable="true"
                 android:background="?attr/selectableItemBackground">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="关于" android:textSize="14sp" android:textColor="@color/niu_text"/>
-                <TextView android:id="@+id/tv_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="v2.8" android:textSize="13sp" android:textColor="@color/niu_hint"/>
+                <TextView android:id="@+id/tv_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="v--" android:textSize="13sp" android:textColor="@color/niu_hint"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
-

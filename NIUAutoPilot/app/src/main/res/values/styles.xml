@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ================================================================
+  科幻 HUD 样式定义 — 基础版（values/styles.xml）
+  深色覆盖见 values-night/styles.xml
+  ================================================================
+-->
+<resources>
+    <!-- 信息玻璃卡片样式 -->
+    <style name="InfoGlassCard">
+        <item name="android:background">@drawable/home_glass_card_bg</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+
+    <!-- 车辆舞台区文字样式 -->
+    <style name="VehicleStageText">
+        <item name="android:textColor">@color/vehicle_text_primary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">@color/vehicle_glow_blue</item>
+        <item name="android:shadowRadius">8</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">0</item>
+    </style>
+
+    <!-- 信息卡片大数字 -->
+    <style name="InfoCardValue">
+        <item name="android:textColor">@color/vehicle_text_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 信息卡片标签 -->
+    <style name="InfoCardLabel">
+        <item name="android:textColor">@color/vehicle_text_secondary</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <!-- HUD 按钮下方文字 -->
+    <style name="HudButtonLabel">
+        <item name="android:textColor">@color/vehicle_text_secondary</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <!-- 页面标题 -->
+    <style name="PageTitle">
+        <item name="android:textColor">@color/vehicle_text_primary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <!-- 状态徽章文字 -->
+    <style name="StatusBadgeText">
+        <item name="android:textColor">@color/vehicle_text_secondary</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+</resources>

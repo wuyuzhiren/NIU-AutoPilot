@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- v2.78 科幻HUD控制页（融合 scifi-home-kit 视觉层，保留全部功能ID） -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/sci_bg">
+    android:background="@drawable/home_page_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,12 +27,12 @@
             android:shadowDy="0"
             android:shadowRadius="8"/>
 
-        <!-- ========== 科幻车辆舞台 ========== -->
+        <!-- ========== 科幻车辆舞台（玻璃卡片+内发光） ========== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_sci_card"
+            android:background="@drawable/home_vehicle_stage_bg"
             android:layout_marginBottom="20dp"
             android:clipChildren="false"
             android:clipToPadding="false">
@@ -40,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_sci_stage"
+                android:background="@drawable/home_vehicle_stage_bg"
                 android:padding="12dp">
 
                 <!-- 车辆动画（v1.1 组件：单一车身图+Canvas光效） -->
@@ -65,7 +67,11 @@
                         android:text="已关机"
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        android:textColor="@color/sci_text"/>
+                        android:textColor="@color/sci_text"
+                        android:shadowColor="@color/vehicle_glow_blue"
+                        android:shadowRadius="10"
+                        android:shadowDx="0"
+                        android:shadowDy="0"/>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -124,11 +130,12 @@
                     android:layout_marginTop="2dp"/>
             </LinearLayout>
 
-            <!-- 信息区域 -->
+            <!-- 信息区域（玻璃拟态卡片） -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:background="@drawable/home_glass_card_bg"
                 android:padding="16dp">
 
                 <!-- 信号行 -->
@@ -257,7 +264,7 @@
             android:gravity="center"
             android:layout_marginBottom="20dp">
 
-            <!-- 开机：绿色圆形 -->
+            <!-- 开机：HUD 圆形按钮 -->
             <LinearLayout
                 android:id="@+id/btn_power_on"
                 android:layout_width="0dp"
@@ -269,18 +276,15 @@
                 android:focusable="true">
                 <FrameLayout
                     android:layout_width="64dp"
-                    android:layout_height="64dp">
-                    <View
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_btn_power_on"/>
+                    android:layout_height="64dp"
+                    android:background="@drawable/home_action_button_bg">
                     <ImageView
                         android:id="@+id/iv_power_on_icon"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:layout_gravity="center"
-                        android:src="@android:drawable/ic_lock_power_off"
-                        android:tint="#FFFFFF"/>
+                        android:src="@drawable/ic_power_on"
+                        app:tint="@color/vehicle_energy_blue"/>
                 </FrameLayout>
                 <TextView
                     android:id="@+id/tv_power_on_label"
@@ -292,7 +296,7 @@
                     android:layout_marginTop="6dp"/>
             </LinearLayout>
 
-            <!-- 关机：红色圆形 -->
+            <!-- 关机：HUD 圆形按钮 -->
             <LinearLayout
                 android:id="@+id/btn_power_off"
                 android:layout_width="0dp"
@@ -304,18 +308,15 @@
                 android:focusable="true">
                 <FrameLayout
                     android:layout_width="64dp"
-                    android:layout_height="64dp">
-                    <View
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_btn_power_off"/>
+                    android:layout_height="64dp"
+                    android:background="@drawable/home_action_button_bg">
                     <ImageView
                         android:id="@+id/iv_power_off_icon"
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_close_clear_cancel"
-                        android:tint="#FFFFFF"/>
+                        android:src="@drawable/ic_power_off"
+                        app:tint="@color/vehicle_alert_red"/>
                 </FrameLayout>
                 <TextView
                     android:id="@+id/tv_power_off_label"
@@ -327,7 +328,7 @@
                     android:layout_marginTop="6dp"/>
             </LinearLayout>
 
-            <!-- 坐桶：橙色圆形 -->
+            <!-- 坐桶：HUD 圆形按钮 -->
             <LinearLayout
                 android:id="@+id/btn_seat"
                 android:layout_width="0dp"
@@ -339,17 +340,14 @@
                 android:focusable="true">
                 <FrameLayout
                     android:layout_width="64dp"
-                    android:layout_height="64dp">
-                    <View
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_btn_seat_circle"/>
+                    android:layout_height="64dp"
+                    android:background="@drawable/home_action_button_bg">
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_more"
-                        android:tint="#FFFFFF"/>
+                        android:src="@drawable/ic_bucket"
+                        app:tint="@color/vehicle_energy_orange"/>
                 </FrameLayout>
                 <TextView
                     android:id="@+id/tv_seat_label"
@@ -361,7 +359,7 @@
                     android:layout_marginTop="6dp"/>
             </LinearLayout>
 
-            <!-- 查状态：蓝色圆形 -->
+            <!-- 查状态：HUD 圆形按钮 -->
             <LinearLayout
                 android:id="@+id/btn_check_state"
                 android:layout_width="0dp"
@@ -373,17 +371,14 @@
                 android:focusable="true">
                 <FrameLayout
                     android:layout_width="64dp"
-                    android:layout_height="64dp">
-                    <View
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_btn_check_circle"/>
+                    android:layout_height="64dp"
+                    android:background="@drawable/home_action_button_bg">
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:layout_gravity="center"
-                        android:src="@android:drawable/ic_menu_info_details"
-                        android:tint="#FFFFFF"/>
+                        android:src="@drawable/ic_status"
+                        app:tint="@color/vehicle_text_secondary"/>
                 </FrameLayout>
                 <TextView
                     android:id="@+id/tv_check_label"

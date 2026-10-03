@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ================================================================
+  科幻 HUD 样式定义 — 深色覆盖版（values-night/styles.xml）
+  仅覆盖需要调整的项，其余继承 values/styles.xml
+  ================================================================
+-->
+<resources>
+    <style name="InfoGlassCard">
+        <item name="android:background">@drawable/home_glass_card_bg</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+</resources>

@@ -11,8 +11,8 @@ android {
         applicationId "com.niu.autopilot"
         minSdk 26
         targetSdk 34
-        versionCode 79
-        versionName "2.77"
+        versionCode 80
+        versionName "2.78"
     }
 
     signingConfigs {

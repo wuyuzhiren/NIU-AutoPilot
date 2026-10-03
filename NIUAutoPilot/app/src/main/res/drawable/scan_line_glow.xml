@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 扫描线发光效果 — 用于 VehicleStageView 扫描线增强 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="0"
+        android:startColor="@android:color/transparent"
+        android:centerColor="@color/vehicle_energy_blue"
+        android:endColor="@android:color/transparent" />
+    <size android:height="2dp" />
+</shape>

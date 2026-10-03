@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v2.77 玻璃拟态卡片增强版：半透明面板 + 顶部高光渐变 + 发光描边（悬浮感，深浅主题随资源切换） -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 底部投影（悬浮感） -->
+    <item android:left="0dp" android:right="0dp" android:top="3dp" android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#22000000"/>
+            <corners android:radius="16dp"/>
+        </shape>
+    </item>
+    <!-- 描边 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#00FFFFFF"/>
+            <corners android:radius="16dp"/>
+            <stroke android:width="1dp" android:color="@color/vehicle_glass_stroke"/>
+        </shape>
+    </item>
+    <!-- 玻璃面板 -->
+    <item android:left="1dp" android:right="1dp" android:top="1dp" android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="@color/vehicle_glass_highlight"
+                android:endColor="@color/vehicle_glass_bg"
+                android:angle="270"/>
+            <corners android:radius="15dp"/>
+        </shape>
+    </item>
+</layer-list>

@@ -60,6 +60,7 @@
     <color name="vehicle_grid_line">#0D1E3A5F</color>
     <color name="vehicle_glass_bg">#B8111827</color>
     <color name="vehicle_glass_stroke">#801E3A5F</color>
+    <color name="vehicle_glass_highlight">#332E3F59</color>
     <!-- v2.2 舞台/徽章深色（深空HUD） -->
     <color name="sci_badge_bg">#33111827</color>
     <color name="sci_badge_stroke">#6600D4FF</color>

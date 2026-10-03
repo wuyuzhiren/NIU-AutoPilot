@@ -12,7 +12,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 电池电量客户端 v2.68（多平台）
+ * 电池电量客户端 v2.77（多平台）
  *
  * 支持平台：
  *  - jichi  极驰锐动租电：固定URL https://syzzz01.huandian.cloud/realTime/soc?type=2
@@ -23,6 +23,11 @@ import java.nio.charset.StandardCharsets;
  *  - hello / custom  哈啰 / 自定义API：设置页填接口URL，
  *           GET请求带 Authorization: token，响应自动识别字段：
  *           dumpEnergy / battery / soc / percent / level / power / 电量
+ *
+ * v2.77 升级（对应投喂包 03-xinneng-battery-fix）：
+ *  - appId / sign / identify 改为 Settings 可配置（默认保留抓包原值，接口变更可改，sign 可留空不发送）
+ *  - 本地缓存：同步失败时保留上次电量并显示「上次同步时间」，不因一次失败清空
+ *  - 错误分级提示：Token过期 / 未查到电池 / 网络失败 / 解析异常 分开给用户
  *
  * token 获取：Charles 抓包对应平台小程序，复制电量接口请求的 Authorization/access-token 头，
  *             在设置页「电池电量」卡粘贴保存。
@@ -126,11 +131,17 @@ public class NiuBatteryClient {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 if ("xinneng".equals(platform)) {
-                    // v2.68 鑫能出行专属请求头（抓包原样复刻）
+                    // v2.77 鑫能出行专属请求头（appId/sign 从设置页读取，可配置；sign 留空则不发送）
                     conn.setRequestProperty("access-token", token);
-                    conn.setRequestProperty("appId", "wxe6f87fdd010fce3e");
-                    conn.setRequestProperty("sign", "GYXNKJHD");
-                    conn.setRequestProperty("identify", "GYXNKJHD");
+                    String appId = settings.getBatteryAppId();
+                    if (appId != null && !appId.trim().isEmpty()) {
+                        conn.setRequestProperty("appId", appId.trim());
+                    }
+                    String sign = settings.getBatterySign();
+                    if (sign != null && !sign.trim().isEmpty()) {
+                        conn.setRequestProperty("sign", sign.trim());
+                        conn.setRequestProperty("identify", sign.trim());
+                    }
                     conn.setRequestProperty("app-type", "MULTI_SERVICE");
                     conn.setRequestProperty("appType", "weapp");
                 } else {
@@ -162,17 +173,45 @@ public class NiuBatteryClient {
                     // v2.76 鑫能：透出业务错误（如"未查询到该电池数据"），提示用户更新电池ID
                     String biz = parseXinnengError(resp);
                     if (biz != null) {
-                        msg = "同步失败：" + biz + "（电池ID可能已更换，请在设置页更新「电池ID」）";
+                        if (biz.contains("未查询到") || biz.contains("不存在") || biz.contains("无效")) {
+                            msg = "未查到当前电池电量：" + biz + "。请打开鑫能出行小程序「我的设备」复制 BTA 开头的电池ID，更新设置页「电池ID」";
+                        } else {
+                            msg = "同步失败：" + biz + "（若持续出现请检查设置页 appId/sign 是否与最新抓包一致）";
+                        }
                     } else {
                         msg = "同步失败: " + resp;
                     }
                 } else {
                     msg = "同步失败: " + resp;
                 }
-                if (code == 401 || code == 403) msg = "token 已过期，请重新抓包更新 access-token";
+                if (code == 401 || code == 403) {
+                    msg = "token 已过期，请打开鑫能出行小程序重新抓包更新 access-token";
+                } else if (code == 404) {
+                    msg = "接口地址不存在（404），请检查电池ID或联系开发者确认接口变更";
+                } else if (code >= 500) {
+                    msg = "鑫能服务器异常（HTTP " + code + "），请稍后重试";
+                }
+                // v2.77 失败时保留上次电量缓存，提示用户
+                if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
+                    msg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
+                }
                 if (cb != null) cb.onDone(false, -1, msg);
             } catch (Exception e) {
-                if (cb != null) cb.onDone(false, -1, "请求异常: " + e.getMessage());
+                String em = e.getMessage() == null ? e.toString() : e.getMessage();
+                String netMsg;
+                if (em.contains("timeout") || em.contains("Timeout") || em.contains("timed out")) {
+                    netMsg = "网络连接超时，请检查网络后重试";
+                } else if (em.contains("UnknownHost") || em.contains("Unable to resolve")) {
+                    netMsg = "无法访问服务器（域名解析失败），请检查网络";
+                } else if (em.contains("ConnectException") || em.contains("failed to connect")) {
+                    netMsg = "连接服务器失败，请检查网络后重试";
+                } else {
+                    netMsg = "请求异常: " + em;
+                }
+                if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
+                    netMsg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
+                }
+                if (cb != null) cb.onDone(false, -1, netMsg);
             }
         }).start();
     }
@@ -189,9 +228,15 @@ public class NiuBatteryClient {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("access-token", token);
-                conn.setRequestProperty("appId", "wxe6f87fdd010fce3e");
-                conn.setRequestProperty("sign", "GYXNKJHD");
-                conn.setRequestProperty("identify", "GYXNKJHD");
+                String appId = settings.getBatteryAppId();
+                if (appId != null && !appId.trim().isEmpty()) {
+                    conn.setRequestProperty("appId", appId.trim());
+                }
+                String sign = settings.getBatterySign();
+                if (sign != null && !sign.trim().isEmpty()) {
+                    conn.setRequestProperty("sign", sign.trim());
+                    conn.setRequestProperty("identify", sign.trim());
+                }
                 conn.setRequestProperty("app-type", "MULTI_SERVICE");
                 conn.setRequestProperty("appType", "weapp");
                 conn.setConnectTimeout(8000);

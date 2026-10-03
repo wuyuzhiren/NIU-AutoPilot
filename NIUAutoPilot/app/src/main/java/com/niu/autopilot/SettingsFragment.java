@@ -44,7 +44,7 @@ public class SettingsFragment extends Fragment {
     private EditText etBatteryManual;
     private android.widget.Button btnBatteryManual, btnBatterySync, btnSaveToken, btnScanToken;
     private android.widget.Button btnPlatformJichi, btnPlatformHello, btnPlatformXinneng, btnPlatformCustom;
-    private EditText etBatteryToken, etBatteryUrl, etBatteryDeviceId;
+    private EditText etBatteryToken, etBatteryUrl, etBatteryDeviceId, etBatteryAppId, etBatterySign;
     private View vLogDot;
     private boolean scanning = false;
     private final Map<String, String> foundDevices = new LinkedHashMap<>();
@@ -103,6 +103,15 @@ public class SettingsFragment extends Fragment {
         etBatteryDeviceId = view.findViewById(R.id.et_battery_device_id);
         etBatteryDeviceId.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) act.settings.setBatteryDeviceId(etBatteryDeviceId.getText().toString().trim());
+        });
+        // v2.77 鑫能 appId / sign 可配置（接口变更时可改，无需改代码）
+        etBatteryAppId = view.findViewById(R.id.et_battery_appid);
+        etBatterySign = view.findViewById(R.id.et_battery_sign);
+        etBatteryAppId.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) act.settings.setBatteryAppId(etBatteryAppId.getText().toString().trim());
+        });
+        etBatterySign.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) act.settings.setBatterySign(etBatterySign.getText().toString().trim());
         });
 
         // v2.22 软件更新
@@ -211,10 +220,12 @@ public class SettingsFragment extends Fragment {
                 Toast.makeText(act, "token 与接口地址已保存，点「从" + NiuBatteryClient.platformName(act.settings) + "同步」即可读取电量", Toast.LENGTH_LONG).show();
                 act.appendLog("电池API token 已保存");
             } else if ("xinneng".equals(plat)) {
-                // v2.70 鑫能出行：token 自动识别电池ID（换电池无需手动改），电池ID 可选
+                // v2.77 鑫能出行：token 保存时同步保存 appId/sign（支持接口变更热调整）
                 String deviceId = etBatteryDeviceId.getText().toString().trim();
                 act.settings.setBatteryDeviceId(deviceId);
-                Toast.makeText(act, "token 已保存，点「从鑫能出行同步」即可自动识别电池并读取电量", Toast.LENGTH_LONG).show();
+                act.settings.setBatteryAppId(etBatteryAppId.getText().toString().trim());
+                act.settings.setBatterySign(etBatterySign.getText().toString().trim());
+                Toast.makeText(act, "token 已保存，点「从鑫能出行同步」读取电量（电池ID 已填则直查，未填自动识别）", Toast.LENGTH_LONG).show();
                 act.appendLog("鑫能出行 token 已保存");
             } else {
                 Toast.makeText(act, "token 已保存，点「从极驰锐动同步」即可读取电量", Toast.LENGTH_SHORT).show();
@@ -286,6 +297,11 @@ public class SettingsFragment extends Fragment {
         // 换电池后直接填小程序「我的设备」里的 BTA 开头ID 最稳妥）
         etBatteryDeviceId.setVisibility(xinneng ? View.VISIBLE : View.GONE);
         etBatteryDeviceId.setText(act.settings.getBatteryDeviceId());
+        // v2.77 鑫能 appId / sign 可配置（默认保留抓包原值，接口变更时才需要改）
+        etBatteryAppId.setVisibility(xinneng ? View.VISIBLE : View.GONE);
+        etBatteryAppId.setText(act.settings.getBatteryAppId());
+        etBatterySign.setVisibility(xinneng ? View.VISIBLE : View.GONE);
+        etBatterySign.setText(act.settings.getBatterySign());
         String platName = NiuBatteryClient.platformName(act.settings);
         etBatteryToken.setHint(xinneng
                 ? "粘贴鑫能出行 token（抓包 device/detail 请求的 access-token 值）"

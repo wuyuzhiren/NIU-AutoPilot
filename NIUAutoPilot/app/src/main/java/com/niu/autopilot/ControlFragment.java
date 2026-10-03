@@ -54,6 +54,10 @@ public class ControlFragment extends Fragment {
     private android.widget.ProgressBar pbBattery;
     private boolean refreshing = false;
     private boolean commandSending = false;
+    /** v2.77 上次同步的开机状态，用于检测"自动模式"状态翻转并补播动画 */
+    private boolean lastSyncedPowerOn = false;
+    /** v2.77 手动按钮刚播过动画（避免 refreshUi 翻转检测重复播放） */
+    private boolean manualAnimJustPlayed = false;
 
     @Nullable
     @Override
@@ -218,6 +222,7 @@ public class ControlFragment extends Fragment {
                 () -> {
                     flashCheck(labelId, original);
                     // v1.1 组件：指令成功 → 播放对应状态动画
+                    manualAnimJustPlayed = true;
                     if (powerState != null) {
                         if (powerState) {
                             vehicleAnimation.playPowerOnAnimation();
@@ -282,7 +287,8 @@ public class ControlFragment extends Fragment {
         }
     }
 
-    private void setCommandSending(boolean sending) {        commandSending = sending;
+    private void setCommandSending(boolean sending) {
+        commandSending = sending;
         if (sending) {
             setButtonEnabled(btnPowerOn, false);
             setButtonEnabled(btnPowerOff, false);
@@ -344,7 +350,19 @@ public class ControlFragment extends Fragment {
         tvPowerState.setTextColor(stateColor);
 
         // v1.1 组件：刷新时按车辆实际状态同步视觉（不触发过渡动画，避免打断用户操作）
+        // v2.77 增强：若状态相对上次发生了"翻转"（且不是手动按钮刚播过动画），补播过渡动画，
+        //       让自动模式（靠近开机/离开关机）也有完整灯光效果
+        boolean flipped = (isOn != lastSyncedPowerOn);
         syncVehicleVisual(isOn);
+        lastSyncedPowerOn = isOn;
+        if (flipped && !commandSending && !manualAnimJustPlayed && vehicleAnimation != null) {
+            if (isOn) {
+                vehicleAnimation.playPowerOnAnimation();
+            } else if ("已关机".equals(act.vehicleState)) {
+                vehicleAnimation.playPowerOffAnimation();
+            }
+        }
+        manualAnimJustPlayed = false;
         // v2.2 主题感知：刷新时同步舞台主题色（切主题重建后也生效）
         applyThemeToStage();
 

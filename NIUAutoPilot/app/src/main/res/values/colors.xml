@@ -78,6 +78,7 @@
     <color name="vehicle_outline_disconnected">#C4B5D4</color>
     <color name="vehicle_glass_bg">#B8FFFFFF</color>
     <color name="vehicle_glass_stroke">#CCD1D9E6</color>
+    <color name="vehicle_glass_highlight">#FFFFFF</color>
     <!-- v2.2 舞台/徽章浅色（白昼太空舱） -->
     <color name="sci_badge_bg">#33FFFFFF</color>
     <color name="sci_badge_stroke">#667C3AED</color>

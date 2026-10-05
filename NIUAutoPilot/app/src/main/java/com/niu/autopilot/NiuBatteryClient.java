@@ -93,14 +93,12 @@ public class NiuBatteryClient {
             token = token.trim();
 
             String platform = settings.getBatteryPlatform();
-            String urlStr;
-            if ("jichi".equals(platform)) {
-                urlStr = JICHI_URL;
-            } else if ("xinneng".equals(platform)) {
-                // v2.76 鑫能出行：优先使用设置页手填/缓存的电池ID直接查 detail（换电池后更新ID即可），
-                // 无缓存时才尝试自动发现（发现接口可能因路径变化失效）。
+            String urlStr = null;
+            String deviceId = null;
+            boolean xinneng = "xinneng".equals(platform);
+            if (xinneng) {
+                // 优先使用缓存/手填电池ID直接查 detail；无缓存时才自动发现
                 String cached = settings.getBatteryDeviceId();
-                String deviceId = null;
                 if (cached != null && !cached.trim().isEmpty()) {
                     deviceId = cached.trim();
                 } else {
@@ -115,7 +113,8 @@ public class NiuBatteryClient {
                                     + "粘贴到设置页「电池ID」输入框后再同步");
                     return;
                 }
-                urlStr = String.format(XINNENG_URL, deviceId.trim());
+            } else if ("jichi".equals(platform)) {
+                urlStr = JICHI_URL;
             } else {
                 urlStr = settings.getBatteryApiUrl();
                 if (urlStr == null || urlStr.trim().isEmpty()) {
@@ -126,94 +125,133 @@ public class NiuBatteryClient {
                 urlStr = urlStr.trim();
             }
 
-            try {
-                URL url = new URL(urlStr);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                if ("xinneng".equals(platform)) {
-                    // v2.77 鑫能出行专属请求头（appId/sign 从设置页读取，可配置；sign 留空则不发送）
-                    conn.setRequestProperty("access-token", token);
-                    String appId = settings.getBatteryAppId();
-                    if (appId != null && !appId.trim().isEmpty()) {
-                        conn.setRequestProperty("appId", appId.trim());
-                    }
-                    String sign = settings.getBatterySign();
-                    if (sign != null && !sign.trim().isEmpty()) {
-                        conn.setRequestProperty("sign", sign.trim());
-                        conn.setRequestProperty("identify", sign.trim());
-                    }
-                    conn.setRequestProperty("app-type", "MULTI_SERVICE");
-                    conn.setRequestProperty("appType", "weapp");
-                } else {
-                    conn.setRequestProperty("Authorization", token);
+            // v2.80 鑫能：最多两轮。第一轮 detail 返回"电池不存在/无效"（换电池后ID失效）时，
+            // 自动清缓存 → 用 token 重新发现新电池ID → 重查一轮，实现"只用 token、换电池免手填"。
+            for (int attempt = 0; attempt < 2; attempt++) {
+                if (xinneng) {
+                    urlStr = String.format(XINNENG_URL, deviceId.trim());
                 }
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
-                int code = conn.getResponseCode();
-                InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
-                BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = r.readLine()) != null) sb.append(line);
-                String resp = sb.toString();
-                conn.disconnect();
+                try {
+                    URL url = new URL(urlStr);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    if (xinneng) {
+                        // v2.77 鑫能出行专属请求头（appId/sign 从设置页读取，可配置；sign 留空则不发送）
+                        conn.setRequestProperty("access-token", token);
+                        String appId = settings.getBatteryAppId();
+                        if (appId != null && !appId.trim().isEmpty()) {
+                            conn.setRequestProperty("appId", appId.trim());
+                        }
+                        String sign = settings.getBatterySign();
+                        if (sign != null && !sign.trim().isEmpty()) {
+                            conn.setRequestProperty("sign", sign.trim());
+                            conn.setRequestProperty("identify", sign.trim());
+                        }
+                        conn.setRequestProperty("app-type", "MULTI_SERVICE");
+                        conn.setRequestProperty("appType", "weapp");
+                    } else {
+                        conn.setRequestProperty("Authorization", token);
+                    }
+                    conn.setConnectTimeout(10000);
+                    conn.setReadTimeout(10000);
+                    int code = conn.getResponseCode();
+                    InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
+                    BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = r.readLine()) != null) sb.append(line);
+                    String resp = sb.toString();
+                    conn.disconnect();
 
-                // 通用解析：先试常见JSON字段，兼容极驰{"code":"200","success":true,"data":{"dumpEnergy":"59"}}
-                int percent = parsePercent(resp);
-                if (percent >= 0 && percent <= 100) {
-                    settings.setBatteryPercent(percent);
-                    settings.setBatterySyncedAt(System.currentTimeMillis());
-                    settings.setBatterySource("api");
-                    if (cb != null) cb.onDone(true, percent, "同步成功");
-                    return;
-                }
+                    // 通用解析：先试常见JSON字段，兼容极驰{"code":"200","success":true,"data":{"dumpEnergy":"59"}}
+                    int percent = parsePercent(resp);
+                    if (percent >= 0 && percent <= 100) {
+                        if (xinneng) {
+                            // v2.80 成功时提取响应里的当前电池ID，与缓存比对，不同则自动更新（换电池后detail能返回新ID）
+                            String respId = extractBatteryId(resp);
+                            if (respId != null && !respId.equals(settings.getBatteryDeviceId())) {
+                                settings.setBatteryDeviceId(respId);
+                            }
+                        }
+                        settings.setBatteryPercent(percent);
+                        settings.setBatterySyncedAt(System.currentTimeMillis());
+                        settings.setBatterySource("api");
+                        if (cb != null) cb.onDone(true, percent, "同步成功");
+                        return;
+                    }
 
-                String msg;
-                if ("xinneng".equals(platform)) {
-                    // v2.76 鑫能：透出业务错误（如"未查询到该电池数据"），提示用户更新电池ID
-                    String biz = parseXinnengError(resp);
-                    if (biz != null) {
-                        if (biz.contains("未查询到") || biz.contains("不存在") || biz.contains("无效")) {
-                            msg = "未查到当前电池电量：" + biz + "。请打开鑫能出行小程序「我的设备」复制 BTA 开头的电池ID，更新设置页「电池ID」";
+                    String msg;
+                    if (xinneng) {
+                        // v2.76 鑫能：透出业务错误（如"未查询到该电池数据"）
+                        String biz = parseXinnengError(resp);
+                        if (biz != null) {
+                            if (biz.contains("未查询到") || biz.contains("不存在") || biz.contains("无效")) {
+                                if (attempt == 0) {
+                                    // v2.80 换电池自动识别：清掉旧ID缓存，用token重新发现新电池ID并重查
+                                    settings.setBatteryDeviceId("");
+                                    String newId = discoverDeviceId(token);
+                                    if (newId != null) {
+                                        settings.setBatteryDeviceId(newId);
+                                        deviceId = newId;
+                                        continue; // 第二轮用新ID重查
+                                    }
+                                    msg = "未查到当前电池电量：" + biz + "。自动识别新电池ID失败，请打开鑫能出行小程序「我的设备」复制 BTA 开头的电池ID，更新设置页「电池ID」";
+                                } else {
+                                    msg = "未查到当前电池电量：" + biz + "。请打开鑫能出行小程序「我的设备」复制 BTA 开头的电池ID，更新设置页「电池ID」";
+                                }
+                            } else {
+                                msg = "同步失败：" + biz + "（若持续出现请检查设置页 appId/sign 是否与最新抓包一致）";
+                            }
                         } else {
-                            msg = "同步失败：" + biz + "（若持续出现请检查设置页 appId/sign 是否与最新抓包一致）";
+                            msg = "同步失败: " + resp;
                         }
                     } else {
                         msg = "同步失败: " + resp;
                     }
-                } else {
-                    msg = "同步失败: " + resp;
+                    if (code == 401 || code == 403) {
+                        msg = "token 已过期，请打开鑫能出行小程序重新抓包更新 access-token";
+                    } else if (code == 404) {
+                        msg = "接口地址不存在（404），请检查电池ID或联系开发者确认接口变更";
+                    } else if (code >= 500) {
+                        msg = "鑫能服务器异常（HTTP " + code + "），请稍后重试";
+                    }
+                    // v2.77 失败时保留上次电量缓存，提示用户
+                    if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
+                        msg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
+                    }
+                    if (cb != null) cb.onDone(false, -1, msg);
+                    return;
+                } catch (Exception e) {
+                    String em = e.getMessage() == null ? e.toString() : e.getMessage();
+                    String netMsg;
+                    if (em.contains("timeout") || em.contains("Timeout") || em.contains("timed out")) {
+                        netMsg = "网络连接超时，请检查网络后重试";
+                    } else if (em.contains("UnknownHost") || em.contains("Unable to resolve")) {
+                        netMsg = "无法访问服务器（域名解析失败），请检查网络";
+                    } else if (em.contains("ConnectException") || em.contains("failed to connect")) {
+                        netMsg = "连接服务器失败，请检查网络后重试";
+                    } else {
+                        netMsg = "请求异常: " + em;
+                    }
+                    if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
+                        netMsg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
+                    }
+                    if (cb != null) cb.onDone(false, -1, netMsg);
+                    return;
                 }
-                if (code == 401 || code == 403) {
-                    msg = "token 已过期，请打开鑫能出行小程序重新抓包更新 access-token";
-                } else if (code == 404) {
-                    msg = "接口地址不存在（404），请检查电池ID或联系开发者确认接口变更";
-                } else if (code >= 500) {
-                    msg = "鑫能服务器异常（HTTP " + code + "），请稍后重试";
-                }
-                // v2.77 失败时保留上次电量缓存，提示用户
-                if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
-                    msg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
-                }
-                if (cb != null) cb.onDone(false, -1, msg);
-            } catch (Exception e) {
-                String em = e.getMessage() == null ? e.toString() : e.getMessage();
-                String netMsg;
-                if (em.contains("timeout") || em.contains("Timeout") || em.contains("timed out")) {
-                    netMsg = "网络连接超时，请检查网络后重试";
-                } else if (em.contains("UnknownHost") || em.contains("Unable to resolve")) {
-                    netMsg = "无法访问服务器（域名解析失败），请检查网络";
-                } else if (em.contains("ConnectException") || em.contains("failed to connect")) {
-                    netMsg = "连接服务器失败，请检查网络后重试";
-                } else {
-                    netMsg = "请求异常: " + em;
-                }
-                if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
-                    netMsg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
-                }
-                if (cb != null) cb.onDone(false, -1, netMsg);
             }
         }).start();
+    }
+
+    /** v2.80 从鑫能 detail 响应中提取当前电池ID（batteryPackageDto.batteryId），宽松正则匹配 */
+    private String extractBatteryId(String resp) {
+        if (resp == null) return null;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\"batteryId\"\\s*:\\s*\"([^\"]+)\"").matcher(resp);
+        if (m.find()) {
+            String id = m.group(1).trim();
+            if (looksLikeDeviceId(id)) return id;
+        }
+        return null;
     }
 
     /**

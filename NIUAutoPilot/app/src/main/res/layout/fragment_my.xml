@@ -12,6 +12,7 @@
         android:padding="16dp">
 
         <TextView
+            android:id="@+id/tv_my_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="我的"
@@ -20,11 +21,12 @@
             android:textColor="@color/niu_text"
             android:layout_marginBottom="16dp"/>
 
-        <!-- 小牛账号 -->
+        <!-- 牛牛账号 -->
         <TextView
+            android:id="@+id/tv_account_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="小牛账号"
+            android:text="牛牛账号"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/niu_text"
@@ -49,7 +51,7 @@
                     android:textSize="14sp"
                     android:textColor="@color/niu_text"
                     android:inputType="phone"
-                    android:hint="请输入小牛账号手机号"
+                    android:hint="请输入牛牛账号手机号"
                     android:textColorHint="@color/niu_hint"/>
 
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="密码" android:textSize="13sp" android:textColor="@color/niu_text_secondary" android:layout_marginTop="12dp" android:layout_marginBottom="4dp"/>
@@ -69,7 +71,7 @@
                         android:textSize="14sp"
                         android:textColor="@color/niu_text"
                         android:inputType="textPassword"
-                        android:hint="小牛App登录密码"
+                        android:hint="牛牛App登录密码"
                         android:textColorHint="@color/niu_hint"/>
                     <ImageView
                         android:id="@+id/iv_eye"
@@ -140,6 +142,7 @@
 
         <!-- 车辆信息 -->
         <TextView
+            android:id="@+id/tv_vehicle_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="车辆信息"
@@ -212,14 +215,44 @@
                 android:backgroundTint="@color/niu_primary"/>
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btn_diagnostic_log"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="12dp"
+            android:text="诊断日志（导出/上传）"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FF9800"/>
+
+        <Button
+            android:id="@+id/btn_ai_tuning"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="8dp"
+            android:text="AI 智能调参"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#7C4DFF"/>
+
+        <Button
+            android:id="@+id/btn_ai_settings"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="8dp"
+            android:text="AI 调参设置"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#9E9E9E"/>
+
         <TextView
+            android:id="@+id/tv_app_version"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="小牛靠近开机助手 v2.8"
+            android:text="小牛靠近开机助手 vX.X"
             android:textSize="11sp"
             android:textColor="@color/niu_hint"
             android:gravity="center"
             android:layout_marginTop="10dp"/>
     </LinearLayout>
 </ScrollView>
-

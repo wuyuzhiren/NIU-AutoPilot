@@ -123,9 +123,9 @@ public class ControlFragment extends Fragment {
             if (!refreshing) { act.settings.setAutoOff(c); if (c) swAutoOn.setChecked(false); }
         });
 
-        btnPowerOn.setOnClickListener(v -> runCommand(Settings.CMD_POWER_ON, "开机", R.id.tv_power_on_label, "开机", true));
-        btnPowerOff.setOnClickListener(v -> runCommand(Settings.CMD_POWER_OFF, "关机", R.id.tv_power_off_label, "关机", false));
-        btnSeat.setOnClickListener(v -> runCommand(Settings.CMD_SEAT, "开坐桶", R.id.tv_seat_label, "开坐桶", null));
+        btnPowerOn.setOnClickListener(v -> { ScifiPowerAnimator.INSTANCE.playPowerOn(requireView()); runCommand(Settings.CMD_POWER_ON, "开机", R.id.tv_power_on_label, "开机", true); });
+        btnPowerOff.setOnClickListener(v -> { ScifiPowerAnimator.INSTANCE.playPowerOff(requireView()); runCommand(Settings.CMD_POWER_OFF, "关机", R.id.tv_power_off_label, "关机", false); });
+        btnSeat.setOnClickListener(v -> { ScifiPowerAnimator.INSTANCE.playSeatOpen(requireView()); runCommand(Settings.CMD_SEAT, "开坐桶", R.id.tv_seat_label, "开坐桶", null); });
         btnCheck.setOnClickListener(v -> {
             animateButtonClick(v);
             act.queryState();
@@ -149,11 +149,14 @@ public class ControlFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // v2.79: 同步主题给环境动画器（跟随App自定义深浅模式）
+        ScifiPowerAnimator.INSTANCE.setLightTheme(MainActivity.isLightThemeActive(act));
         autoCheckStateIfReady();
     }
 
     @Override
     public void onDestroyView() {
+        ScifiPowerAnimator.INSTANCE.onDestroy(getView()); // v2.79: 取消环境动画并清理overlay防泄漏
         if (vehicleAnimation != null) vehicleAnimation.release();
         if (vehicleStateMachine != null) vehicleStateMachine.dispose();
         super.onDestroyView();

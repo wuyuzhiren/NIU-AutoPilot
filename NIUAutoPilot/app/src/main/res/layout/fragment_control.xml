@@ -45,11 +45,18 @@
                 android:background="@drawable/home_vehicle_stage_bg"
                 android:padding="12dp">
 
-                <!-- 车辆动画（v1.1 组件：单一车身图+Canvas光效） -->
-                <com.niu.autopilot.vehicle.VehicleStageView
-                    android:id="@+id/vehicle_anim"
+                <!-- 车辆舞台容器（ScifiPowerAnimator 扫描线/能量环/光晕 overlay 挂载层） -->
+                <FrameLayout
+                    android:id="@+id/vehicle_stage_container"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp"/>
+                    android:layout_height="220dp">
+
+                    <!-- 车辆动画（v1.1 组件：单一车身图+Canvas光效） -->
+                    <com.niu.autopilot.vehicle.VehicleStageView
+                        android:id="@+id/vehicle_anim"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                </FrameLayout>
 
                 <!-- 状态行：已开机/已关机 + 连接徽章 -->
                 <LinearLayout

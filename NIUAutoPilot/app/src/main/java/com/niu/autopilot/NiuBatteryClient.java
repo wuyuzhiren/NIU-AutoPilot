@@ -61,6 +61,10 @@ public class NiuBatteryClient {
         settings.setBatteryPercent(Math.max(0, Math.min(100, percent)));
         settings.setBatterySyncedAt(System.currentTimeMillis());
         settings.setBatterySource("manual");
+        // v2.81: 手动录入也写入诊断日志
+        try {
+            AppLogger.get(ctx).log("BATTERY", platformName(settings) + "|MANUAL|" + percent + "%");
+        } catch (Exception ignored) {}
     }
 
     /** 当前平台显示名 */
@@ -176,6 +180,12 @@ public class NiuBatteryClient {
                         settings.setBatteryPercent(percent);
                         settings.setBatterySyncedAt(System.currentTimeMillis());
                         settings.setBatterySource("api");
+                        // v2.81: 电量同步写入诊断日志，便于验证换电池自动识别是否生效
+                        try {
+                            String devId = settings.getBatteryDeviceId();
+                            AppLogger.get(ctx).log("BATTERY", platformName(settings) + "|OK|" + percent
+                                    + "%|ID:" + (devId != null && !devId.isEmpty() ? devId : "-"));
+                        } catch (Exception ignored) {}
                         if (cb != null) cb.onDone(true, percent, "同步成功");
                         return;
                     }
@@ -220,6 +230,9 @@ public class NiuBatteryClient {
                         msg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
                     }
                     if (cb != null) cb.onDone(false, -1, msg);
+                    try {
+                        AppLogger.get(ctx).log("BATTERY", platformName(settings) + "|FAIL|" + msg.replace('\n', ' '));
+                    } catch (Exception ignored) {}
                     return;
                 } catch (Exception e) {
                     String em = e.getMessage() == null ? e.toString() : e.getMessage();
@@ -237,6 +250,9 @@ public class NiuBatteryClient {
                         netMsg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
                     }
                     if (cb != null) cb.onDone(false, -1, netMsg);
+                    try {
+                        AppLogger.get(ctx).log("BATTERY", platformName(settings) + "|FAIL|" + netMsg.replace('\n', ' '));
+                    } catch (Exception ignored) {}
                     return;
                 }
             }

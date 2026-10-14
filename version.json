@@ -1,1 +1,1 @@
-{"versionCode":92,"versionName":"2.91","downloadUrl":"https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.91.apk","apkUrl":"https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.91.apk","changelog":"v2.91: 修复自动开关机面板布局错位（面板与按钮重叠/文字截断）"}
+{"versionCode":93,"versionName":"2.92","downloadUrl":"https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.92.apk","apkUrl":"https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v2.92.apk","changelog":"v2.92: 首页改为可滑动布局，车辆动画区恢复固定高度不再压缩"}

@@ -1,0 +1,111 @@
+=== 小牛靠近开机助手 一键诊断日志 ===
+诊断开始: 2026-09-12 17:31:54
+诊断时长: 60 秒
+
+=== 当前配置 ===
+靠近阈值: -58 dBm
+离开阈值: -75 dBm
+滞回区间: 17 dB
+扫描间隔: 700 ms
+连续达标: 2 次
+冷却时间: 30 秒
+滤波窗口: 3
+自动开机: true
+自动关机: false
+目标MAC: 54:88:FE:42:69:74
+目标名称: NIU Link 6974
+车辆状态: 已关机
+
+=== 诊断数据（时间 | 类型 | 详情） ===
+17:31:54.193 | DIAG | 开始诊断记录，时长 60 秒，文件: diagnostic_20260912_173154.txt
+17:31:54.435 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:31:55.141 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:31:55.844 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:31:56.548 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:31:57.251 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:31:57.956 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:31:58.664 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:31:59.369 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:00.082 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:00.788 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:01.495 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:02.201 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:02.907 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:03.614 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:04.321 | RSSI | raw=-62 smooth=-62.7 near=-58 far=-75 consec=0 nearOk=N farOk=N
+17:32:05.027 | RSSI | raw=-59 smooth=-59.7 near=-58 far=-75 consec=0 nearOk=N farOk=N
+17:32:05.735 | RSSI | raw=-65 smooth=-63.9 near=-58 far=-75 consec=0 nearOk=N farOk=N
+17:32:06.442 | RSSI | raw=-59 smooth=-60.0 near=-58 far=-75 consec=0 nearOk=N farOk=N
+17:32:07.152 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:07.859 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:08.565 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:09.268 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:09.974 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:10.680 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:11.386 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:12.091 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:12.796 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:13.502 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:14.209 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:14.913 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:15.618 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:16.325 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:17.031 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:17.737 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:18.444 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:19.152 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:19.859 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:20.567 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:21.276 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:21.981 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:22.687 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:23.390 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:24.094 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:24.801 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:25.508 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:26.212 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:26.916 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:27.620 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:28.331 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:29.037 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:29.743 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:30.450 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:31.156 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:31.864 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:32.571 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:33.277 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:33.988 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:34.696 | RSSI | raw=-56 smooth=-56.8 near=-58 far=-75 consec=1 nearOk=N farOk=N
+17:32:35.406 | RSSI | raw=-56 smooth=-56.2 near=-58 far=-75 consec=2 nearOk=Y farOk=N
+17:32:35.408 | TRIGGER | 自动开机 | 已靠近(滤波-56/原始-56, 连续2次)，发送开机...
+17:32:36.115 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:36.822 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:37.528 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:38.234 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:38.937 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:39.642 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:40.347 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:41.052 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:41.767 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:42.482 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:43.187 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:43.894 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:44.601 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:45.307 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:46.011 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:46.715 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:47.421 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:48.128 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:48.835 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:49.548 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:50.256 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:50.959 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:51.663 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:52.366 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:53.071 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:53.777 | STATE | NO_SIGNAL | 未发现目标 NIU Link 6974
+17:32:54.194 | DIAG | 诊断记录结束，实际时长 60 秒
+
+=== 诊断结束 ===
+实际时长: 60 秒
+文件大小: 6356 字节

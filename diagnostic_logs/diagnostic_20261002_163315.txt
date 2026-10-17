@@ -1,0 +1,84 @@
+=== 小牛靠近开机助手 一键诊断日志 ===
+诊断开始: 2026-10-02 16:33:15
+诊断时长: 60 秒
+
+=== 当前配置 ===
+靠近阈值: -67 dBm
+离开阈值: -83 dBm
+滞回区间: 16 dB
+扫描间隔: 1000 ms
+连续达标: 3 次
+冷却时间: 30 秒
+滤波窗口: 3
+自动开机: true
+自动关机: false
+目标MAC: 54:88:FE:42:69:74
+目标名称: NIU Link 6974
+车辆状态: 已关机
+
+=== 诊断数据（时间 | 类型 | 详情） ===
+16:33:15.779 | DIAG | 开始诊断记录，时长 60 秒，文件: diagnostic_20261002_163315.txt
+16:33:16.560 | RSSI | raw=-42 smooth=-42.4 near=-67 far=-83 consec=25 nearOk=Y farOk=N
+16:33:17.565 | RSSI | raw=-42 smooth=-42.1 near=-67 far=-83 consec=26 nearOk=Y farOk=N
+16:33:18.570 | RSSI | raw=-48 smooth=-46.8 near=-67 far=-83 consec=27 nearOk=Y farOk=N
+16:33:19.575 | RSSI | raw=-48 smooth=-47.8 near=-67 far=-83 consec=28 nearOk=Y farOk=N
+16:33:20.581 | RSSI | raw=-48 smooth=-48.0 near=-67 far=-83 consec=29 nearOk=Y farOk=N
+16:33:21.588 | RSSI | raw=-41 smooth=-42.4 near=-67 far=-83 consec=30 nearOk=Y farOk=N
+16:33:22.599 | RSSI | raw=-49 smooth=-47.7 near=-67 far=-83 consec=31 nearOk=Y farOk=N
+16:33:23.604 | RSSI | raw=-34 smooth=-36.7 near=-67 far=-83 consec=32 nearOk=Y farOk=N
+16:33:24.609 | RSSI | raw=-41 smooth=-40.1 near=-67 far=-83 consec=33 nearOk=Y farOk=N
+16:33:25.615 | RSSI | raw=-41 smooth=-40.8 near=-67 far=-83 consec=34 nearOk=Y farOk=N
+16:33:26.620 | RSSI | raw=-48 smooth=-46.6 near=-67 far=-83 consec=35 nearOk=Y farOk=N
+16:33:27.626 | RSSI | raw=-48 smooth=-47.7 near=-67 far=-83 consec=36 nearOk=Y farOk=N
+16:33:28.632 | RSSI | raw=-48 smooth=-47.9 near=-67 far=-83 consec=37 nearOk=Y farOk=N
+16:33:29.637 | RSSI | raw=-56 smooth=-54.4 near=-67 far=-83 consec=38 nearOk=Y farOk=N
+16:33:30.642 | RSSI | raw=-56 smooth=-55.7 near=-67 far=-83 consec=39 nearOk=Y farOk=N
+16:33:31.647 | RSSI | raw=-56 smooth=-55.9 near=-67 far=-83 consec=40 nearOk=Y farOk=N
+16:33:32.658 | RSSI | raw=-56 smooth=-56.0 near=-67 far=-83 consec=41 nearOk=Y farOk=N
+16:33:33.664 | RSSI | raw=-56 smooth=-56.0 near=-67 far=-83 consec=42 nearOk=Y farOk=N
+16:33:34.666 | RSSI | raw=-56 smooth=-56.0 near=-67 far=-83 consec=43 nearOk=Y farOk=N
+16:33:35.669 | RSSI | raw=-58 smooth=-57.6 near=-67 far=-83 consec=44 nearOk=Y farOk=N
+16:33:36.675 | RSSI | raw=-58 smooth=-57.9 near=-67 far=-83 consec=45 nearOk=Y farOk=N
+16:33:37.680 | RSSI | raw=-58 smooth=-58.0 near=-67 far=-83 consec=46 nearOk=Y farOk=N
+16:33:38.686 | RSSI | raw=-52 smooth=-53.2 near=-67 far=-83 consec=47 nearOk=Y farOk=N
+16:33:39.693 | RSSI | raw=-52 smooth=-52.2 near=-67 far=-83 consec=48 nearOk=Y farOk=N
+16:33:40.699 | RSSI | raw=-54 smooth=-53.6 near=-67 far=-83 consec=49 nearOk=Y farOk=N
+16:33:41.706 | RSSI | raw=-54 smooth=-53.9 near=-67 far=-83 consec=50 nearOk=Y farOk=N
+16:33:42.718 | RSSI | raw=-61 smooth=-59.6 near=-67 far=-83 consec=51 nearOk=Y farOk=N
+16:33:43.720 | RSSI | raw=-61 smooth=-60.7 near=-67 far=-83 consec=52 nearOk=Y farOk=N
+16:33:44.725 | RSSI | raw=-54 smooth=-55.3 near=-67 far=-83 consec=53 nearOk=Y farOk=N
+16:33:45.729 | RSSI | raw=-54 smooth=-54.3 near=-67 far=-83 consec=54 nearOk=Y farOk=N
+16:33:46.734 | RSSI | raw=-62 smooth=-60.5 near=-67 far=-83 consec=55 nearOk=Y farOk=N
+16:33:47.739 | RSSI | raw=-54 smooth=-55.3 near=-67 far=-83 consec=56 nearOk=Y farOk=N
+16:33:48.746 | RSSI | raw=-53 smooth=-53.5 near=-67 far=-83 consec=57 nearOk=Y farOk=N
+16:33:49.753 | RSSI | raw=-53 smooth=-53.1 near=-67 far=-83 consec=58 nearOk=Y farOk=N
+16:33:50.760 | RSSI | raw=-62 smooth=-60.2 near=-67 far=-83 consec=59 nearOk=Y farOk=N
+16:33:51.768 | RSSI | raw=-62 smooth=-61.6 near=-67 far=-83 consec=60 nearOk=Y farOk=N
+16:33:52.784 | RSSI | raw=-54 smooth=-55.5 near=-67 far=-83 consec=61 nearOk=Y farOk=N
+16:33:53.790 | RSSI | raw=-54 smooth=-54.3 near=-67 far=-83 consec=62 nearOk=Y farOk=N
+16:33:54.797 | RSSI | raw=-55 smooth=-54.9 near=-67 far=-83 consec=63 nearOk=Y farOk=N
+16:33:55.803 | RSSI | raw=-54 smooth=-54.2 near=-67 far=-83 consec=64 nearOk=Y farOk=N
+16:33:56.809 | RSSI | raw=-54 smooth=-54.0 near=-67 far=-83 consec=65 nearOk=Y farOk=N
+16:33:57.816 | RSSI | raw=-62 smooth=-60.4 near=-67 far=-83 consec=66 nearOk=Y farOk=N
+16:33:58.823 | RSSI | raw=-54 smooth=-55.3 near=-67 far=-83 consec=67 nearOk=Y farOk=N
+16:33:59.829 | RSSI | raw=-55 smooth=-55.1 near=-67 far=-83 consec=68 nearOk=Y farOk=N
+16:34:00.835 | RSSI | raw=-62 smooth=-60.6 near=-67 far=-83 consec=69 nearOk=Y farOk=N
+16:34:01.842 | RSSI | raw=-62 smooth=-61.7 near=-67 far=-83 consec=70 nearOk=Y farOk=N
+16:34:02.855 | RSSI | raw=-55 smooth=-56.3 near=-67 far=-83 consec=71 nearOk=Y farOk=N
+16:34:03.860 | RSSI | raw=-54 smooth=-54.5 near=-67 far=-83 consec=72 nearOk=Y farOk=N
+16:34:04.866 | RSSI | raw=-64 smooth=-62.1 near=-67 far=-83 consec=73 nearOk=Y farOk=N
+16:34:05.869 | RSSI | raw=-55 smooth=-56.4 near=-67 far=-83 consec=74 nearOk=Y farOk=N
+16:34:06.871 | RSSI | raw=-55 smooth=-55.3 near=-67 far=-83 consec=75 nearOk=Y farOk=N
+16:34:07.874 | RSSI | raw=-56 smooth=-55.9 near=-67 far=-83 consec=76 nearOk=Y farOk=N
+16:34:08.878 | RSSI | raw=-54 smooth=-54.4 near=-67 far=-83 consec=77 nearOk=Y farOk=N
+16:34:09.883 | RSSI | raw=-53 smooth=-53.3 near=-67 far=-83 consec=78 nearOk=Y farOk=N
+16:34:10.888 | RSSI | raw=-50 smooth=-50.7 near=-67 far=-83 consec=79 nearOk=Y farOk=N
+16:34:11.892 | RSSI | raw=-57 smooth=-55.7 near=-67 far=-83 consec=80 nearOk=Y farOk=N
+16:34:12.903 | RSSI | raw=-51 smooth=-51.9 near=-67 far=-83 consec=81 nearOk=Y farOk=N
+16:34:13.908 | RSSI | raw=-51 smooth=-51.2 near=-67 far=-83 consec=82 nearOk=Y farOk=N
+16:34:14.913 | RSSI | raw=-51 smooth=-51.0 near=-67 far=-83 consec=83 nearOk=Y farOk=N
+16:34:15.785 | DIAG | 诊断记录结束，实际时长 60 秒
+
+=== 诊断结束 ===
+实际时长: 60 秒
+文件大小: 5738 字节

@@ -178,8 +178,13 @@ public class Settings {
     /** 云貂 Cookie（抓包请求头整段复制，含 https_waf_cookie / JSESSIONID，过期后重新抓包） */
     public String getCloudminkCookie() { return sp.getString("cloudmink_cookie", ""); }
     public void setCloudminkCookie(String v) { sp.edit().putString("cloudmink_cookie", v).apply(); }
-    /** 云貂设备编号 deviceNo（BT 开头，换电池后更新） */
-    public String getCloudminkDeviceNo() { return sp.getString("cloudmink_device_no", "BT207206012MKN260201024"); }
+    /** 云貂设备编号 deviceNo（BT 开头，换电池后更新；v3.9.1 按账号实测电池编号修正） */
+    public String getCloudminkDeviceNo() {
+        String v = sp.getString("cloudmink_device_no", "BT207206012MKLN260201024");
+        // v3.9 首发默认值少了一个 L（该编号查不到电池），老数据自动迁移
+        if ("BT207206012MKN260201024".equals(v)) v = "BT207206012MKLN260201024";
+        return v;
+    }
     public void setCloudminkDeviceNo(String v) { sp.edit().putString("cloudmink_device_no", v).apply(); }
     /** 云貂套餐到期日（接口返回 endDate 格式化后的 yyyy-MM-dd） */
     public String getCloudminkPlanEnd() { return sp.getString("cloudmink_plan_end", ""); }

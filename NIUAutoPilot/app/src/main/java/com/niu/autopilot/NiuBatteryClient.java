@@ -52,7 +52,8 @@ public class NiuBatteryClient {
     private static final String CLOUDMINK_SOC = CLOUDMINK_HOST + "/api/hBoxOrder/getSoc";
     /** 3. 套餐信息（表单 POST：sysId + appId） */
     private static final String CLOUDMINK_INFO = CLOUDMINK_HOST + "/api/businessTransfer/batteryInfoByApp";
-    private static final String CLOUDMINK_GOODS_HANDLER = "com.aotaxi.membership.goodsHandler.GoodsTietaBmsHandler";
+    /** v3.9.1 实测修正：服务端真实类名是 aotaki（不是 aotaxi），写错会报「产品的的处理类异常」 */
+    private static final String CLOUDMINK_GOODS_HANDLER = "com.aotaki.membership.goodsHandler.GoodsTietaBmsHandler";
     private static final String CLOUDMINK_SYS_ID = "longlei";
     private static final String CLOUDMINK_APP_ID = "wx02b5340085796e10";
 
@@ -326,7 +327,13 @@ public class NiuBatteryClient {
             int percent = parseCloudminkPercent(resp);
             if (percent < 0 || percent > 100) {
                 String err = parseCloudminkError(resp);
-                String msg = "云貂电量获取失败：" + (err != null ? err : "返回格式异常");
+                String msg;
+                if (err != null) {
+                    msg = "云貂电量获取失败：" + err;
+                } else {
+                    // success=true 但没有 totalVol：设备编号查不到电池，服务端默认回 percent:0
+                    msg = "未查到设备 " + deviceNo + " 的电池数据\n请核对设备编号 deviceNo（换电池后编号会变，可在云貂小程序「我的电池」查看）";
+                }
                 if (resp != null && (resp.contains("login") || resp.contains("登录"))) {
                     msg = "云貂 Cookie 已过期，请重新抓包更新 Cookie";
                 }
@@ -418,6 +425,9 @@ public class NiuBatteryClient {
         try {
             JSONObject j = new JSONObject(resp.trim());
             int p = j.optInt("percent", -1);
+            // v3.9.1: 设备编号不存在时服务端返回 {"success":true,"percent":0} 且无 totalVol，
+            // 不能当成 0% 电量（否则会误触发 10% 低电量提醒）
+            if (p == 0 && !j.has("totalVol")) return -1;
             if (p >= 0 && p <= 100) return p;
             Object data = j.opt("data");
             if (data instanceof JSONObject) {

@@ -1,7 +1,7 @@
 {
-  "versionCode": 110,
-  "versionName": "3.9",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.apk",
-  "apkUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.apk",
-  "changelog": "v3.9: 换电列表新增「云貂换电」（时间戳+电量+套餐信息，粘贴 Cookie 即可）；新增 30%/20%/15%/10% 四级低电量提醒（前台弹窗、后台通知，每档提醒一次）；每次自动开机强制刷新换电电量。"
+  "versionCode": 111,
+  "versionName": "3.9.1",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.1.apk",
+  "apkUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.1.apk",
+  "changelog": "v3.9.1: 云貂换电实测参数修正（goodsHandler 更正为 com.aotaki、设备编号补全 L），电量/套餐接口已实测通过；v3.9: 新增「云貂换电」平台、30%/20%/15%/10% 四级低电量提醒（前台弹窗+后台通知）、每次自动开机强制刷新换电电量。"
 }

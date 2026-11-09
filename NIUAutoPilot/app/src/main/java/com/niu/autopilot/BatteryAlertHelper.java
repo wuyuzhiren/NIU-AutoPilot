@@ -53,6 +53,7 @@ public class BatteryAlertHelper {
         if (sActivity.get() == activity) {
             sActivity = new WeakReference<>(null);
             sResumed = false;
+            sDialogShowing = false;
         }
     }
 
@@ -74,6 +75,12 @@ public class BatteryAlertHelper {
 
         final int want = percent <= 10 ? 10 : (percent <= 15 ? 15 : (percent <= 20 ? 20 : 30));
         int stage = s.getBatteryAlertStage();
+        // 电量回升（例如换了一块 25% 的电池）：把档位重置为当前档，不重复提醒当前档，
+        // 但保证之后降到 20/15/10 时仍会提醒
+        if (stage > 0 && percent > stage) {
+            s.setBatteryAlertStage(want);
+            return;
+        }
         // stage 是已提醒过的最低档；want >= stage 说明这一档已经提醒过
         if (stage > 0 && want >= stage) return;
         s.setBatteryAlertStage(want);

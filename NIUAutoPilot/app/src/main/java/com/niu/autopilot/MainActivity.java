@@ -126,6 +126,25 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception ignored) {}
     }
 
+    // v3.9: 低电量提醒需要知道 App 是否在前台（前台弹窗 / 后台通知）
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BatteryAlertHelper.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        BatteryAlertHelper.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        BatteryAlertHelper.detach(this);
+        super.onDestroy();
+    }
+
     /** v2.22: 显示更新提示对话框 */
     private void showUpdatePrompt(Updater.UpdateInfo info) {
         String msg = "新版本: v" + info.versionName + "\n\n";

@@ -287,11 +287,11 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 电池电量（极驰锐动） -->
+        <!-- 电池电量（换电平台） -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="电池电量（极驰锐动租电）"
+            android:text="电池电量（换电平台）"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/niu_text"
@@ -340,10 +340,22 @@
                     android:textSize="12sp"
                     android:layout_marginEnd="4dp"/>
                 <Button
-                    android:id="@+id/btn_platform_custom"
+                    android:id="@+id/btn_platform_cloudmink"
                     android:layout_width="0dp"
                     android:layout_height="36dp"
                     android:layout_weight="1"
+                    android:text="云貂换电"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
+                <Button
+                    android:id="@+id/btn_platform_custom"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
                     android:text="自定义API"
                     android:textSize="12sp"/>
             </LinearLayout>
@@ -400,6 +412,13 @@
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="当前电量" android:textSize="14sp" android:textColor="@color/niu_text"/>
                 <TextView android:id="@+id/tv_battery_set" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="未同步" android:textSize="16sp" android:textColor="@color/niu_hint" android:textStyle="bold"/>
             </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="低电量提醒：30% / 20% / 15% / 10% 各提示一次（App 在前台弹窗，在后台发通知）"
+                android:textSize="11sp"
+                android:textColor="@color/niu_hint"
+                android:layout_marginTop="6dp"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -429,7 +448,7 @@
                 android:id="@+id/et_battery_token"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="粘贴极驰锐动 token（Charles 抓 Authorization 值）"
+                android:hint="粘贴平台凭证（云貂换电填整段 Cookie，其余填 token）"
                 android:inputType="textMultiLine|textNoSuggestions"
                 android:textSize="11sp"
                 android:background="@drawable/bg_btn_outline"
@@ -441,7 +460,7 @@
                 android:id="@+id/btn_save_token"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:text="保存 token"
+                android:text="保存凭证（token / Cookie）"
                 android:textSize="13sp"
                 android:textColor="@color/niu_primary"
                 android:background="@drawable/bg_btn_outline"
@@ -467,7 +486,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="电量显示在小程序「极驰锐动」。粘贴 token 后点「从极驰锐动同步」即可自动读取；token 过期后重新抓包更新。扫码导入更快捷，见按钮说明。"
+                android:text="电量显示在对应换电小程序。粘贴凭证后点同步即可读取；token / Cookie 过期后重新抓包更新。云貂换电需同时填写设备编号 deviceNo（BT 开头），换电池后同步更新。"
                 android:textSize="11sp"
                 android:textColor="@color/niu_hint"
                 android:layout_marginTop="10dp"

@@ -44,6 +44,18 @@ public class NiuBatteryClient {
             "https://wechat.fnjkj.cn/battery_wechat/device/list"
     };
 
+    // ===== v3.9 云貂换电（z.hzlzr.cn）=====
+    private static final String CLOUDMINK_HOST = "https://z.hzlzr.cn";
+    /** 1. 获取服务器时间戳（WAF 会话预热） */
+    private static final String CLOUDMINK_TIMESTAMP = CLOUDMINK_HOST + "/api/open/timestamp";
+    /** 2. 电量接口（表单 POST：deviceNo + goodsHandler） */
+    private static final String CLOUDMINK_SOC = CLOUDMINK_HOST + "/api/hBoxOrder/getSoc";
+    /** 3. 套餐信息（表单 POST：sysId + appId） */
+    private static final String CLOUDMINK_INFO = CLOUDMINK_HOST + "/api/businessTransfer/batteryInfoByApp";
+    private static final String CLOUDMINK_GOODS_HANDLER = "com.aotaxi.membership.goodsHandler.GoodsTietaBmsHandler";
+    private static final String CLOUDMINK_SYS_ID = "longlei";
+    private static final String CLOUDMINK_APP_ID = "wx02b5340085796e10";
+
     public interface BatteryCallback {
         void onDone(boolean ok, int percent, String msg);
     }
@@ -65,6 +77,8 @@ public class NiuBatteryClient {
         try {
             AppLogger.get(ctx).log("BATTERY", platformName(settings) + "|MANUAL|" + percent + "%");
         } catch (Exception ignored) {}
+        // v3.9 手动录入同样触发低电量提醒
+        BatteryAlertHelper.check(ctx, settings.getBatteryPercent(), platformName(settings));
     }
 
     /** 当前平台显示名 */
@@ -72,14 +86,25 @@ public class NiuBatteryClient {
         String p = s.getBatteryPlatform();
         if ("hello".equals(p)) return "哈啰";
         if ("xinneng".equals(p)) return "鑫能出行";
+        if ("cloudmink".equals(p)) return "云貂换电";
         if ("custom".equals(p)) return "自定义API";
         return "极驰锐动";
     }
 
-    /** 该平台是否需要填接口URL（极驰/鑫能不需要，其余需要） */
+    /** 该平台是否需要填接口URL（极驰/鑫能/云貂不需要，其余需要） */
     public static boolean needUrl(Settings s) {
         String p = s.getBatteryPlatform();
-        return !"jichi".equals(p) && !"xinneng".equals(p);
+        return !"jichi".equals(p) && !"xinneng".equals(p) && !"cloudmink".equals(p);
+    }
+
+    /** v3.9 该平台是否已配置凭证（云貂用 Cookie，其余用 token） */
+    public static boolean isConfigured(Settings s) {
+        if ("cloudmink".equals(s.getBatteryPlatform())) {
+            String c = s.getCloudminkCookie();
+            return c != null && !c.trim().isEmpty();
+        }
+        String t = s.getBatteryToken();
+        return t != null && !t.trim().isEmpty();
     }
 
     /**
@@ -88,6 +113,12 @@ public class NiuBatteryClient {
      */
     public void queryBattery(final BatteryCallback cb) {
         new Thread(() -> {
+            String platform = settings.getBatteryPlatform();
+            // v3.9 云貂换电走独立接口（Cookie 鉴权，非 token/URL 模式）
+            if ("cloudmink".equals(platform)) {
+                queryCloudmink(cb);
+                return;
+            }
             String token = settings.getBatteryToken();
             if (token == null || token.trim().isEmpty()) {
                 if (cb != null) cb.onDone(false, -1,
@@ -96,7 +127,6 @@ public class NiuBatteryClient {
             }
             token = token.trim();
 
-            String platform = settings.getBatteryPlatform();
             String urlStr = null;
             String deviceId = null;
             boolean xinneng = "xinneng".equals(platform);
@@ -187,6 +217,8 @@ public class NiuBatteryClient {
                                     + "%|ID:" + (devId != null && !devId.isEmpty() ? devId : "-"));
                         } catch (Exception ignored) {}
                         if (cb != null) cb.onDone(true, percent, "同步成功");
+                        // v3.9 低电量分级提醒（30/20/15/10）
+                        BatteryAlertHelper.check(ctx, percent, platformName(settings));
                         return;
                     }
 
@@ -257,6 +289,167 @@ public class NiuBatteryClient {
                 }
             }
         }).start();
+    }
+
+    /**
+     * v3.9 云貂换电：Cookie 鉴权。
+     * 1) GET /api/open/timestamp 预热 WAF 会话（失败不阻断）
+     * 2) POST /api/hBoxOrder/getSoc 取 percent
+     * 3) POST /api/businessTransfer/batteryInfoByApp 取套餐到期 endDate
+     */
+    private void queryCloudmink(BatteryCallback cb) {
+        String cookie = settings.getCloudminkCookie();
+        if (cookie == null || cookie.trim().isEmpty()) {
+            if (cb != null) cb.onDone(false, -1,
+                    "请先在设置页「电池电量」粘贴云貂 Cookie\n（抓包请求头整段 Cookie，含 https_waf_cookie 与 JSESSIONID；过期后重新抓包）");
+            return;
+        }
+        cookie = cookie.trim();
+        String deviceNo = settings.getCloudminkDeviceNo();
+        if (deviceNo == null || deviceNo.trim().isEmpty()) {
+            if (cb != null) cb.onDone(false, -1, "请填写云貂设备编号 deviceNo（BT 开头）");
+            return;
+        }
+        deviceNo = deviceNo.trim();
+
+        try {
+            // 1) 时间戳接口：失败不影响后续
+            try {
+                String tsResp = httpRequest("GET", CLOUDMINK_TIMESTAMP, null, cookie, true);
+                AppLogger.get(ctx).log("BATTERY", "云貂换电|TIMESTAMP|" + tsResp);
+            } catch (Exception ignored) {}
+
+            // 2) 电量
+            String body = "deviceNo=" + java.net.URLEncoder.encode(deviceNo, "UTF-8")
+                    + "&goodsHandler=" + java.net.URLEncoder.encode(CLOUDMINK_GOODS_HANDLER, "UTF-8");
+            String resp = httpRequest("POST", CLOUDMINK_SOC, body, cookie, false);
+            int percent = parseCloudminkPercent(resp);
+            if (percent < 0 || percent > 100) {
+                String err = parseCloudminkError(resp);
+                String msg = "云貂电量获取失败：" + (err != null ? err : "返回格式异常");
+                if (resp != null && (resp.contains("login") || resp.contains("登录"))) {
+                    msg = "云貂 Cookie 已过期，请重新抓包更新 Cookie";
+                }
+                if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
+                    msg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
+                }
+                if (cb != null) cb.onDone(false, -1, msg);
+                try { AppLogger.get(ctx).log("BATTERY", "云貂换电|FAIL|" + msg.replace('\n', ' ')); } catch (Exception ignored) {}
+                return;
+            }
+
+            settings.setBatteryPercent(percent);
+            settings.setBatterySyncedAt(System.currentTimeMillis());
+            settings.setBatterySource("api");
+            // 电量到手先回调，套餐查询不阻塞主流程
+            if (cb != null) cb.onDone(true, percent, "同步成功");
+            try { AppLogger.get(ctx).log("BATTERY", "云貂换电|OK|" + percent + "%|ID:" + deviceNo); } catch (Exception ignored) {}
+            BatteryAlertHelper.check(ctx, percent, "云貂换电");
+
+            // 3) 套餐信息（只用于显示到期日）
+            try {
+                String info = httpRequest("POST", CLOUDMINK_INFO,
+                        "sysId=" + java.net.URLEncoder.encode(CLOUDMINK_SYS_ID, "UTF-8")
+                                + "&appId=" + java.net.URLEncoder.encode(CLOUDMINK_APP_ID, "UTF-8"), cookie, false);
+                String end = parseCloudminkEndDate(info);
+                if (end != null) settings.setCloudminkPlanEnd(end);
+            } catch (Exception ignored) {}
+        } catch (Exception e) {
+            String em = e.getMessage() == null ? e.toString() : e.getMessage();
+            String msg;
+            if (em.contains("timeout") || em.contains("Timeout") || em.contains("timed out")) {
+                msg = "网络连接超时，请检查网络后重试";
+            } else if (em.contains("UnknownHost") || em.contains("Unable to resolve")) {
+                msg = "无法访问云貂服务器（域名解析失败），请检查网络";
+            } else if (em.contains("ConnectException") || em.contains("failed to connect")) {
+                msg = "连接云貂服务器失败，请检查网络后重试";
+            } else if (em.contains("cookie 已失效") || em.contains("HTTP 401") || em.contains("HTTP 403")) {
+                msg = "云貂 Cookie 已过期，请重新抓包更新 Cookie";
+            } else {
+                msg = "请求异常: " + em;
+            }
+            if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
+                msg += "\n（已保留上次电量 " + settings.getBatteryPercent() + "%，来自 " + syncedText() + "）";
+            }
+            if (cb != null) cb.onDone(false, -1, msg);
+            try { AppLogger.get(ctx).log("BATTERY", "云貂换电|FAIL|" + msg.replace('\n', ' ')); } catch (Exception ignored) {}
+        }
+    }
+
+    /** 云貂通用请求：GET 时 body=null */
+    private String httpRequest(String method, String urlStr, String body, String cookie, boolean json) throws Exception {
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod(method);
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(12000);
+        conn.setRequestProperty("Cookie", cookie);
+        conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+        conn.setRequestProperty("Accept", "application/json, text/plain, */*");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/122.0.0.0 Mobile Safari/537.36 MicroMessenger/8.0");
+        if ("POST".equals(method)) {
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            byte[] data = body == null ? new byte[0] : body.getBytes(StandardCharsets.UTF_8);
+            conn.setFixedLengthStreamingMode(data.length);
+            java.io.OutputStream os = conn.getOutputStream();
+            os.write(data);
+            os.flush();
+            os.close();
+        } else {
+            conn.setRequestProperty("Content-Type", json ? "application/json; charset=UTF-8" : "application/x-www-form-urlencoded");
+        }
+        int code = conn.getResponseCode();
+        InputStream is = (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream();
+        BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = r.readLine()) != null) sb.append(line);
+        String resp = sb.toString();
+        conn.disconnect();
+        if (code == 401 || code == 403) throw new Exception("cookie 已失效（HTTP " + code + "）");
+        if (code < 200 || code >= 300) throw new Exception("HTTP " + code + ": " + resp);
+        return resp;
+    }
+
+    /** 云貂电量解析：{"success":true,"totalVol":81.59,"percent":94} */
+    private int parseCloudminkPercent(String resp) {
+        if (resp == null || resp.trim().isEmpty()) return -1;
+        try {
+            JSONObject j = new JSONObject(resp.trim());
+            int p = j.optInt("percent", -1);
+            if (p >= 0 && p <= 100) return p;
+            Object data = j.opt("data");
+            if (data instanceof JSONObject) {
+                int dp = ((JSONObject) data).optInt("percent", -1);
+                if (dp >= 0 && dp <= 100) return dp;
+            }
+        } catch (Exception ignored) {}
+        return -1;
+    }
+
+    /** 云貂错误信息：success=false 时的 message/msg */
+    private String parseCloudminkError(String resp) {
+        if (resp == null || resp.trim().isEmpty()) return "返回为空";
+        try {
+            JSONObject j = new JSONObject(resp.trim());
+            if (j.optBoolean("success", false)) return null;
+            String m = j.optString("message", "");
+            if (m.isEmpty()) m = j.optString("msg", "");
+            if (!m.isEmpty()) return m;
+        } catch (Exception ignored) {}
+        return resp.length() > 120 ? resp.substring(0, 120) : resp;
+    }
+
+    /** 套餐到期 endDate：20261209162403 → 2026-12-09 */
+    private String parseCloudminkEndDate(String resp) {
+        if (resp == null) return null;
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("\"endDate\"\\s*:\\s*\"?(\\d{8,14})").matcher(resp);
+        if (!m.find()) return null;
+        String d = m.group(1);
+        if (d.length() < 8) return null;
+        return d.substring(0, 4) + "-" + d.substring(4, 6) + "-" + d.substring(6, 8);
     }
 
     /** v2.80 从鑫能 detail 响应中提取当前电池ID（batteryPackageDto.batteryId），宽松正则匹配 */

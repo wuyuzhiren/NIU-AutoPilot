@@ -174,6 +174,21 @@ public class Settings {
     public String getBatterySign() { return sp.getString("battery_sign", "GYXNKJHD"); }
     public void setBatterySign(String v) { sp.edit().putString("battery_sign", v).apply(); }
 
+    // ========== v3.9 云貂换电 ==========
+    /** 云貂 Cookie（抓包请求头整段复制，含 https_waf_cookie / JSESSIONID，过期后重新抓包） */
+    public String getCloudminkCookie() { return sp.getString("cloudmink_cookie", ""); }
+    public void setCloudminkCookie(String v) { sp.edit().putString("cloudmink_cookie", v).apply(); }
+    /** 云貂设备编号 deviceNo（BT 开头，换电池后更新） */
+    public String getCloudminkDeviceNo() { return sp.getString("cloudmink_device_no", "BT207206012MKN260201024"); }
+    public void setCloudminkDeviceNo(String v) { sp.edit().putString("cloudmink_device_no", v).apply(); }
+    /** 云貂套餐到期日（接口返回 endDate 格式化后的 yyyy-MM-dd） */
+    public String getCloudminkPlanEnd() { return sp.getString("cloudmink_plan_end", ""); }
+    public void setCloudminkPlanEnd(String v) { sp.edit().putString("cloudmink_plan_end", v).apply(); }
+
+    // ========== v3.9 低电量提醒（已提醒过的最低档位：0/30/20/15/10） ==========
+    public int getBatteryAlertStage() { return sp.getInt("battery_alert_stage", 0); }
+    public void setBatteryAlertStage(int v) { sp.edit().putInt("battery_alert_stage", v).apply(); }
+
     // ========== v2.13 信号滤波窗口（1~10，默认3） ==========
     public int getFilterWindow() { return Math.max(1, Math.min(10, sp.getInt("filter_window", 3))); }
     public void setFilterWindow(int v) { sp.edit().putInt("filter_window", Math.max(1, Math.min(10, v))).apply(); }

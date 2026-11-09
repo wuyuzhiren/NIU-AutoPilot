@@ -43,7 +43,7 @@ public class SettingsFragment extends Fragment {
     private TextView tvBatterySet;
     private EditText etBatteryManual;
     private android.widget.Button btnBatteryManual, btnBatterySync, btnSaveToken, btnScanToken;
-    private android.widget.Button btnPlatformJichi, btnPlatformHello, btnPlatformXinneng, btnPlatformCustom;
+    private android.widget.Button btnPlatformJichi, btnPlatformHello, btnPlatformXinneng, btnPlatformCloudmink, btnPlatformCustom;
     private EditText etBatteryToken, etBatteryUrl, etBatteryDeviceId, etBatteryAppId, etBatterySign;
     private View vLogDot;
     private boolean scanning = false;
@@ -98,11 +98,16 @@ public class SettingsFragment extends Fragment {
         btnPlatformJichi = view.findViewById(R.id.btn_platform_jichi);
         btnPlatformHello = view.findViewById(R.id.btn_platform_hello);
         btnPlatformXinneng = view.findViewById(R.id.btn_platform_xinneng);
+        btnPlatformCloudmink = view.findViewById(R.id.btn_platform_cloudmink);
         btnPlatformCustom = view.findViewById(R.id.btn_platform_custom);
         etBatteryUrl = view.findViewById(R.id.et_battery_url);
         etBatteryDeviceId = view.findViewById(R.id.et_battery_device_id);
         etBatteryDeviceId.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) act.settings.setBatteryDeviceId(etBatteryDeviceId.getText().toString().trim());
+            if (!hasFocus) {
+                String v2 = etBatteryDeviceId.getText().toString().trim();
+                if ("cloudmink".equals(act.settings.getBatteryPlatform())) act.settings.setCloudminkDeviceNo(v2);
+                else act.settings.setBatteryDeviceId(v2);
+            }
         });
         // v2.77 鑫能 appId / sign 可配置（接口变更时可改，无需改代码）
         etBatteryAppId = view.findViewById(R.id.et_battery_appid);
@@ -199,37 +204,48 @@ public class SettingsFragment extends Fragment {
             act.appendLog("电量手动同步: " + p + "%");
         });
 
-        // v2.63: 平台切换（极驰锐动 / 哈啰 / 鑫能出行 / 自定义API）
+        // v2.63: 平台切换（极驰锐动 / 哈啰 / 鑫能出行 / 云貂换电 / 自定义API）
         btnPlatformJichi.setOnClickListener(v -> { act.settings.setBatteryPlatform("jichi"); updateBatteryPlatformUi(); });
         btnPlatformHello.setOnClickListener(v -> { act.settings.setBatteryPlatform("hello"); updateBatteryPlatformUi(); });
         btnPlatformXinneng.setOnClickListener(v -> { act.settings.setBatteryPlatform("xinneng"); updateBatteryPlatformUi(); });
+        btnPlatformCloudmink.setOnClickListener(v -> { act.settings.setBatteryPlatform("cloudmink"); updateBatteryPlatformUi(); });
         btnPlatformCustom.setOnClickListener(v -> { act.settings.setBatteryPlatform("custom"); updateBatteryPlatformUi(); });
         etBatteryUrl.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) act.settings.setBatteryApiUrl(etBatteryUrl.getText().toString().trim());
         });
 
-        // v2.15: 保存 token（按平台提示）
+        // v2.15: 保存凭证（按平台提示；v3.9 云貂存 Cookie）
         btnSaveToken.setOnClickListener(v -> {
             String t = etBatteryToken.getText().toString().trim();
-            if (t.isEmpty()) { Toast.makeText(act, "请先粘贴 token", Toast.LENGTH_SHORT).show(); return; }
-            act.settings.setBatteryToken(t);
             String plat = act.settings.getBatteryPlatform();
-            if (!"jichi".equals(plat) && !"xinneng".equals(plat)) {
-                String url = etBatteryUrl.getText().toString().trim();
-                act.settings.setBatteryApiUrl(url);
-                Toast.makeText(act, "token 与接口地址已保存，点「从" + NiuBatteryClient.platformName(act.settings) + "同步」即可读取电量", Toast.LENGTH_LONG).show();
-                act.appendLog("电池API token 已保存");
-            } else if ("xinneng".equals(plat)) {
-                // v2.77 鑫能出行：token 保存时同步保存 appId/sign（支持接口变更热调整）
-                String deviceId = etBatteryDeviceId.getText().toString().trim();
-                act.settings.setBatteryDeviceId(deviceId);
-                act.settings.setBatteryAppId(etBatteryAppId.getText().toString().trim());
-                act.settings.setBatterySign(etBatterySign.getText().toString().trim());
-                Toast.makeText(act, "token 已保存，点「从鑫能出行同步」读取电量（电池ID 已填则直查，未填自动识别）", Toast.LENGTH_LONG).show();
-                act.appendLog("鑫能出行 token 已保存");
+            if (t.isEmpty()) {
+                Toast.makeText(act, "cloudmink".equals(plat) ? "请先粘贴云貂 Cookie" : "请先粘贴 token", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if ("cloudmink".equals(plat)) {
+                act.settings.setCloudminkCookie(t);
+                act.settings.setCloudminkDeviceNo(etBatteryDeviceId.getText().toString().trim());
+                Toast.makeText(act, "云貂 Cookie 已保存，点「从云貂换电同步」读取电量（Cookie 过期后重新抓包）", Toast.LENGTH_LONG).show();
+                act.appendLog("云貂换电 Cookie 已保存");
             } else {
-                Toast.makeText(act, "token 已保存，点「从极驰锐动同步」即可读取电量", Toast.LENGTH_SHORT).show();
-                act.appendLog("极驰锐动 token 已保存");
+                act.settings.setBatteryToken(t);
+                if (!"jichi".equals(plat) && !"xinneng".equals(plat)) {
+                    String url = etBatteryUrl.getText().toString().trim();
+                    act.settings.setBatteryApiUrl(url);
+                    Toast.makeText(act, "token 与接口地址已保存，点「从" + NiuBatteryClient.platformName(act.settings) + "同步」即可读取电量", Toast.LENGTH_LONG).show();
+                    act.appendLog("电池API token 已保存");
+                } else if ("xinneng".equals(plat)) {
+                    // v2.77 鑫能出行：token 保存时同步保存 appId/sign（支持接口变更热调整）
+                    String deviceId = etBatteryDeviceId.getText().toString().trim();
+                    act.settings.setBatteryDeviceId(deviceId);
+                    act.settings.setBatteryAppId(etBatteryAppId.getText().toString().trim());
+                    act.settings.setBatterySign(etBatterySign.getText().toString().trim());
+                    Toast.makeText(act, "token 已保存，点「从鑫能出行同步」读取电量（电池ID 已填则直查，未填自动识别）", Toast.LENGTH_LONG).show();
+                    act.appendLog("鑫能出行 token 已保存");
+                } else {
+                    Toast.makeText(act, "token 已保存，点「从极驰锐动同步」即可读取电量", Toast.LENGTH_SHORT).show();
+                    act.appendLog("极驰锐动 token 已保存");
+                }
             }
         });
 
@@ -285,28 +301,47 @@ public class SettingsFragment extends Fragment {
     /** v2.63: 刷新电池平台UI（高亮选中项、URL框显隐、同步按钮文案） */
     private void updateBatteryPlatformUi() {
         String plat = act.settings.getBatteryPlatform();
-        boolean custom = !"jichi".equals(plat) && !"xinneng".equals(plat); // 哈啰/自定义 才填 URL
+        // 哈啰/自定义 才填 URL（极驰/鑫能/云貂都是内置地址）
+        boolean custom = !"jichi".equals(plat) && !"xinneng".equals(plat) && !"cloudmink".equals(plat);
         boolean xinneng = "xinneng".equals(plat);
+        boolean cloudmink = "cloudmink".equals(plat);
         btnPlatformJichi.setBackgroundResource("jichi".equals(plat) ? R.drawable.bg_btn_primary : R.drawable.bg_btn_outline);
         btnPlatformHello.setBackgroundResource("hello".equals(plat) ? R.drawable.bg_btn_primary : R.drawable.bg_btn_outline);
         btnPlatformXinneng.setBackgroundResource("xinneng".equals(plat) ? R.drawable.bg_btn_primary : R.drawable.bg_btn_outline);
+        btnPlatformCloudmink.setBackgroundResource(cloudmink ? R.drawable.bg_btn_primary : R.drawable.bg_btn_outline);
         btnPlatformCustom.setBackgroundResource("custom".equals(plat) ? R.drawable.bg_btn_primary : R.drawable.bg_btn_outline);
         etBatteryUrl.setVisibility(custom ? View.VISIBLE : View.GONE);
         etBatteryUrl.setText(act.settings.getBatteryApiUrl());
-        // v2.76 鑫能出行：恢复显示电池ID输入框（token 自动发现接口常因路径变动失效，
-        // 换电池后直接填小程序「我的设备」里的 BTA 开头ID 最稳妥）
-        etBatteryDeviceId.setVisibility(xinneng ? View.VISIBLE : View.GONE);
-        etBatteryDeviceId.setText(act.settings.getBatteryDeviceId());
+        // v2.76 鑫能出行：电池ID输入框；v3.9 云貂换电：设备编号 deviceNo
+        etBatteryDeviceId.setVisibility((xinneng || cloudmink) ? View.VISIBLE : View.GONE);
+        if (cloudmink) {
+            etBatteryDeviceId.setHint("云貂设备编号 deviceNo（BT 开头，换电池后更新）");
+            etBatteryDeviceId.setText(act.settings.getCloudminkDeviceNo());
+        } else {
+            etBatteryDeviceId.setHint("电池ID（device/detail?idDevice=xxx，换电池后重新抓包）");
+            etBatteryDeviceId.setText(act.settings.getBatteryDeviceId());
+        }
         // v2.77 鑫能 appId / sign 可配置（默认保留抓包原值，接口变更时才需要改）
         etBatteryAppId.setVisibility(xinneng ? View.VISIBLE : View.GONE);
         etBatteryAppId.setText(act.settings.getBatteryAppId());
         etBatterySign.setVisibility(xinneng ? View.VISIBLE : View.GONE);
         etBatterySign.setText(act.settings.getBatterySign());
         String platName = NiuBatteryClient.platformName(act.settings);
-        etBatteryToken.setHint(xinneng
-                ? "粘贴鑫能出行 token（抓包 device/detail 请求的 access-token 值）"
-                : "粘贴" + platName + " token（抓包电量接口的 Authorization 值）");
+        // 凭证输入框：云貂用 Cookie，其余用 token；切平台清空旧输入避免存错
+        String saved = cloudmink ? act.settings.getCloudminkCookie() : act.settings.getBatteryToken();
+        etBatteryToken.setText("");
+        String baseHint = cloudmink
+                ? "粘贴云貂 Cookie（整段，含 https_waf_cookie 与 JSESSIONID）"
+                : (xinneng
+                    ? "粘贴鑫能出行 token（抓包 device/detail 请求的 access-token 值）"
+                    : "粘贴" + platName + " token（抓包电量接口的 Authorization 值）");
+        etBatteryToken.setHint(saved.isEmpty()
+                ? baseHint
+                : "已保存（" + saved.length() + " 字符），可直接点同步；要更新请粘贴新值");
         btnBatterySync.setText("从" + platName + "同步");
+        // 扫码导入只适用于 token 类平台（云貂是整段 Cookie）
+        btnScanToken.setVisibility(cloudmink ? View.GONE : View.VISIBLE);
+        refreshBattery();
     }
 
     /** v2.28: 从校准页/其他页面返回时自动刷新阈值等参数显示（修复校准应用后界面不变的问题） */
@@ -440,10 +475,12 @@ public class SettingsFragment extends Fragment {
         swAutoApply.setOnCheckedChangeListener((b, c) -> act.settings.setAutoApplyAfterVerify(c));
 
         swAutoUpdate.setChecked(act.settings.isAutoCheckUpdate());
-        // 已保存的 token 回填到输入框（脱敏：只显示前20位）
-        String savedToken = act.settings.getBatteryToken();
+        // 已保存的凭证回填提示（v3.9 云貂用 Cookie，其余用 token）
+        boolean isCloudmink = "cloudmink".equals(act.settings.getBatteryPlatform());
+        String savedToken = isCloudmink ? act.settings.getCloudminkCookie() : act.settings.getBatteryToken();
         if (!savedToken.isEmpty() && etBatteryToken.getText().toString().isEmpty()) {
-            etBatteryToken.setHint("已保存 token（" + savedToken.length() + " 字符），可直接点同步");
+            etBatteryToken.setHint((isCloudmink ? "已保存 Cookie（" : "已保存 token（")
+                    + savedToken.length() + " 字符），可直接点同步");
         }
 
         // 主题选中态
@@ -474,7 +511,13 @@ public class SettingsFragment extends Fragment {
             tvBatterySet.setText("未同步");
             tvBatterySet.setTextColor(0xFF9E9E9E);
         } else {
-            tvBatterySet.setText(p + "%  ·  " + b.syncedText());
+            String txt = p + "%  ·  " + b.syncedText();
+            // v3.9 云貂换电：附带套餐到期日
+            if ("cloudmink".equals(act.settings.getBatteryPlatform())) {
+                String end = act.settings.getCloudminkPlanEnd();
+                if (end != null && !end.isEmpty()) txt += "  ·  套餐至 " + end;
+            }
+            tvBatterySet.setText(txt);
             tvBatterySet.setTextColor(NiuBatteryClient.colorFor(level));
         }
     }
@@ -500,6 +543,7 @@ public class SettingsFragment extends Fragment {
 
     /** 内置更新日志（新版本在最前），与 version.json 的 changelog 保持同步 */
     private static final String[] CHANGELOG = {
+            "v3.9：换电列表新增「云貂换电」（时间戳/电量/套餐三接口，Cookie 鉴权，显示套餐到期日）；电量 30%/20%/15%/10% 分级低电量提醒（前台弹窗、后台通知，每档提醒一次）；每次自动开机强制刷新换电电量（不受车辆账号配置和10分钟缓存限制）",
             "v2.73：换电池后自动识别新电池（鑫能每次同步强制重新发现，不再显示旧电池电量）；日志导出合并诊断数据，AI调参不再提示无RSSI样本；空日志拒绝上传",
             "v2.72：后台扫描绑定车辆MAC过滤，绕开系统限流、扫描频率恢复正常；靠近需连续3次/离开连续5次达标防抖动误触发；扫描异常3/6/12秒自动恢复",
             "v2.71：信号触发优化——走进靠近区间且信号持续增强即提前开机（连续2次增强防误触）；距离显示档位保守化，楼上/穿墙不再误显示成近距离",

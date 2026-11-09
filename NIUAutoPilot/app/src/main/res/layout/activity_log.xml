@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F5F5F5">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="诊断日志"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="选择时间段导出日志，上传到 GitHub 供开发者分析调参"
+        android:textSize="13sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 日志状态卡片 -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_log_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="日志信息加载中..."
+                android:textSize="14sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 时间段选择 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="选择时间段"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="开始日期"
+                android:textSize="12sp"
+                android:textColor="#888888" />
+
+            <Button
+                android:id="@+id/btn_start_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="选择日期"
+                android:backgroundTint="#FFFFFF"
+                android:textColor="#333333" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="结束日期"
+                android:textSize="12sp"
+                android:textColor="#888888" />
+
+            <Button
+                android:id="@+id/btn_end_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="选择日期"
+                android:backgroundTint="#FFFFFF"
+                android:textColor="#333333" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 快捷选择 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btn_quick_today"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="今天"
+            android:backgroundTint="#E3F2FD"
+            android:textColor="#1976D2"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_quick_3days"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="近3天"
+            android:backgroundTint="#E3F2FD"
+            android:textColor="#1976D2"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_quick_7days"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="近7天"
+            android:backgroundTint="#E3F2FD"
+            android:textColor="#1976D2"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+    <!-- 操作按钮 -->
+    <Button
+        android:id="@+id/btn_export"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="导出日志到本地"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btn_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="上传到 GitHub"
+        android:backgroundTint="#2196F3"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btn_clear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="清空所有日志"
+        android:backgroundTint="#F44336"
+        android:textColor="#FFFFFF" />
+
+    <!-- 结果显示 -->
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:visibility="gone" />
+
+</LinearLayout>

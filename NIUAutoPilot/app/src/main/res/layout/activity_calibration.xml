@@ -1,0 +1,913 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/niu_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 标题栏 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← 返回"
+                android:textSize="16sp"
+                android:textColor="@color/niu_primary"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🎯 智能校准"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/niu_text"/>
+        </LinearLayout>
+
+        <!-- 四步指示器 -->
+        <LinearLayout
+            android:id="@+id/step_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/step_dot_1"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:gravity="center"
+                android:text="1"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_step_dot_active"/>
+            <TextView
+                android:id="@+id/step_text_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="10dp"
+                android:text="标定"
+                android:textSize="12sp"
+                android:textColor="@color/niu_text"/>
+
+            <View
+                android:layout_width="18dp"
+                android:layout_height="2dp"
+                android:background="@color/niu_hint"/>
+
+            <TextView
+                android:id="@+id/step_dot_2"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:gravity="center"
+                android:layout_marginStart="10dp"
+                android:text="2"
+                android:textSize="12sp"
+                android:textColor="@color/niu_hint"
+                android:background="@drawable/bg_step_dot_inactive"/>
+            <TextView
+                android:id="@+id/step_text_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="10dp"
+                android:text="采样"
+                android:textSize="12sp"
+                android:textColor="@color/niu_hint"/>
+
+            <View
+                android:layout_width="18dp"
+                android:layout_height="2dp"
+                android:background="@color/niu_hint"/>
+
+            <TextView
+                android:id="@+id/step_dot_3"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:gravity="center"
+                android:layout_marginStart="10dp"
+                android:text="3"
+                android:textSize="12sp"
+                android:textColor="@color/niu_hint"
+                android:background="@drawable/bg_step_dot_inactive"/>
+            <TextView
+                android:id="@+id/step_text_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="10dp"
+                android:text="拟合"
+                android:textSize="12sp"
+                android:textColor="@color/niu_hint"/>
+
+            <View
+                android:layout_width="18dp"
+                android:layout_height="2dp"
+                android:background="@color/niu_hint"/>
+
+            <TextView
+                android:id="@+id/step_dot_4"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:gravity="center"
+                android:layout_marginStart="10dp"
+                android:text="4"
+                android:textSize="12sp"
+                android:textColor="@color/niu_hint"
+                android:background="@drawable/bg_step_dot_inactive"/>
+            <TextView
+                android:id="@+id/step_text_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="验证"
+                android:textSize="12sp"
+                android:textColor="@color/niu_hint"/>
+        </LinearLayout>
+
+        <!-- ========== 步骤1：车辆基准点标定 ========== -->
+        <LinearLayout
+            android:id="@+id/card_step1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:background="@color/niu_card"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="第一步：站在车辆旁边"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/niu_text"/>
+
+            <TextView
+                android:id="@+id/tv_step1_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="请站在车辆正旁边，确保手机与车辆距离 1 米内。\n标定基准位置是校准精准的前提。"
+                android:textSize="14sp"
+                android:textColor="@color/niu_text_secondary"
+                android:lineSpacingExtra="3dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="信号质量: "
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_hint"/>
+                <TextView
+                    android:id="@+id/tv_step1_quality"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/niu_hint"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:id="@+id/tv_step1_points"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="已采集 0/5 点"
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_primary"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progress_step1"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:layout_marginTop="8dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="@color/niu_primary"/>
+
+            <TextView
+                android:id="@+id/tv_step1_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="等待开始…"
+                android:textSize="13sp"
+                android:textColor="@color/niu_primary"/>
+
+            <Button
+                android:id="@+id/btn_begin_calibrate"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="14dp"
+                android:text="开始标定"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/niu_primary"/>
+        </LinearLayout>
+
+        <!-- ========== 步骤2：行走采样 ========== -->
+        <LinearLayout
+            android:id="@+id/card_step2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:background="@color/niu_card"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="第二步：向外匀速行走"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/niu_text"/>
+
+            <TextView
+                android:id="@+id/tv_step2_guide"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="请直线匀速远离车辆，走得越远校准越精准。"
+                android:textSize="14sp"
+                android:textColor="@color/niu_text_secondary"
+                android:lineSpacingExtra="3dp"/>
+
+            <!-- 实时数据区 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tv_cur_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--.-"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/niu_primary"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="当前距离(米)"
+                        android:textSize="11sp"
+                        android:textColor="@color/niu_hint"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tv_cur_rssi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/niu_text"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="信号(dBm)"
+                        android:textSize="11sp"
+                        android:textColor="@color/niu_hint"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tv_signal_quality"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/niu_hint"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="信号质量"
+                        android:textSize="11sp"
+                        android:textColor="@color/niu_hint"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 采样进度 -->
+            <TextView
+                android:id="@+id/tv_sample_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="已采集有效样本 0 组"
+                android:textSize="13sp"
+                android:textColor="@color/niu_text"/>
+            <ProgressBar
+                android:id="@+id/progress_step2"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="4dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="@color/niu_success"/>
+
+            <TextView
+                android:id="@+id/tv_step2_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="正在采样，请匀速向外行走…"
+                android:textSize="13sp"
+                android:textColor="@color/niu_primary"/>
+
+            <Button
+                android:id="@+id/btn_finish_sample"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:text="完成采样"
+                android:textColor="#FFFFFF"
+                android:enabled="false"
+                android:backgroundTint="@color/niu_success"/>
+        </LinearLayout>
+
+        <!-- ========== 步骤3：模型拟合 ========== -->
+        <LinearLayout
+            android:id="@+id/card_step3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:background="@color/niu_card"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="第三步：计算参数"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/niu_text"/>
+
+            <ProgressBar
+                android:id="@+id/progress_fit"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_marginTop="16dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/niu_primary"/>
+
+            <TextView
+                android:id="@+id/tv_fit_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="正在根据采样数据拟合信号模型…"
+                android:textSize="14sp"
+                android:textColor="@color/niu_text"
+                android:gravity="center"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="正在计算当前环境的信号衰减参数"
+                android:textSize="12sp"
+                android:textColor="@color/niu_hint"
+                android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ========== 步骤4：触发验证 ========== -->
+        <LinearLayout
+            android:id="@+id/card_step4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:background="@color/niu_card"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="第四步：验证效果"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/niu_text"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="请走向车辆，系统将自动检测开机触发点"
+                android:textSize="14sp"
+                android:textColor="@color/niu_text_secondary"
+                android:lineSpacingExtra="3dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tv_verify_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--.-"
+                        android:textSize="34sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/niu_primary"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="实时距离(米)"
+                        android:textSize="11sp"
+                        android:textColor="@color/niu_hint"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tv_verify_rssi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/niu_text"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="当前信号(dBm)"
+                        android:textSize="11sp"
+                        android:textColor="@color/niu_hint"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_verify_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="预计触发点: 5.0 米（信号 ≥ -55 dBm）"
+                android:textSize="13sp"
+                android:textColor="@color/niu_primary"
+                android:gravity="center"/>
+
+            <ProgressBar
+                android:id="@+id/progress_verify"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="8dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="@color/niu_primary"/>
+
+            <TextView
+                android:id="@+id/tv_verify_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textSize="13sp"
+                android:textColor="@color/niu_text"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/btn_skip_verify"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="跳过验证，直接应用"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/niu_hint"
+                android:padding="10dp"
+                android:background="?attr/selectableItemBackground"/>
+        </LinearLayout>
+
+        <!-- ========== 结果：验证成功 ========== -->
+        <LinearLayout
+            android:id="@+id/card_result_ok"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:background="@color/niu_card"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="✅"
+                android:textSize="40sp"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="校准完成，精度优秀"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/niu_text"
+                android:gravity="center"
+                android:layout_marginTop="6dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:background="@color/niu_bg"
+                android:padding="14dp">
+
+                <TextView
+                    android:id="@+id/tv_ok_env"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="环境判定: --"
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_text_secondary"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:id="@+id/tv_ok_near_dist"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/niu_success"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="预设触发(米)"
+                            android:textSize="11sp"
+                            android:textColor="@color/niu_hint"/>
+                        <TextView
+                            android:id="@+id/tv_ok_near"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-- dBm"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/niu_primary"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:id="@+id/tv_ok_actual_dist"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/niu_primary"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="实际触发(米)"
+                            android:textSize="11sp"
+                            android:textColor="@color/niu_hint"/>
+                        <TextView
+                            android:id="@+id/tv_ok_actual_rssi"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-- dBm"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/niu_primary"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:id="@+id/tv_ok_error"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/niu_success"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="误差(米)"
+                            android:textSize="11sp"
+                            android:textColor="@color/niu_hint"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_ok_hyster"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="滞回区间: -- dB"
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_text_secondary"/>
+                <TextView
+                    android:id="@+id/tv_ok_conf"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="置信度: --"
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_text_secondary"/>
+            </LinearLayout>
+
+            <!-- 保存为常用地点 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="保存为: "
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_hint"/>
+                <TextView
+                    android:id="@+id/btn_place_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="家"
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_primary"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
+                    android:background="@drawable/bg_btn_outline"/>
+                <TextView
+                    android:id="@+id/btn_place_work"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="公司"
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_primary"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
+                    android:background="@drawable/bg_btn_outline"/>
+                <TextView
+                    android:id="@+id/btn_place_garage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="地库"
+                    android:textSize="13sp"
+                    android:textColor="@color/niu_primary"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
+                    android:background="@drawable/bg_btn_outline"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_apply"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:text="✅ 应用校准结果"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/niu_primary"/>
+
+            <Button
+                android:id="@+id/btn_save_scene"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:text="💾 保存为场景"
+                android:textColor="@color/niu_primary"
+                android:background="@drawable/bg_btn_outline"/>
+
+            <TextView
+                android:id="@+id/btn_redo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="重新校准"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/niu_hint"
+                android:padding="10dp"
+                android:background="?attr/selectableItemBackground"/>
+        </LinearLayout>
+
+        <!-- ========== 结果：偏差较大 ========== -->
+        <LinearLayout
+            android:id="@+id/card_result_dev"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:background="@color/niu_card"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚠️"
+                android:textSize="40sp"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="校准偏差较大"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/niu_text"
+                android:gravity="center"
+                android:layout_marginTop="6dp"/>
+
+            <TextView
+                android:id="@+id/tv_dev_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="实际触发距离与目标差距较大"
+                android:textSize="13sp"
+                android:textColor="@color/niu_text_secondary"
+                android:gravity="center"/>
+
+            <Button
+                android:id="@+id/btn_dev_redo"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="14dp"
+                android:text="重新校准"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/niu_primary"/>
+
+            <Button
+                android:id="@+id/btn_dev_manual"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:text="手动调整阈值"
+                android:textColor="@color/niu_primary"
+                android:background="@drawable/bg_btn_outline"/>
+
+            <TextView
+                android:id="@+id/btn_dev_apply"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="勉强应用"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/niu_hint"
+                android:padding="10dp"
+                android:background="?attr/selectableItemBackground"/>
+        </LinearLayout>
+
+        <!-- ========== 结果：验证失败 ========== -->
+        <LinearLayout
+            android:id="@+id/card_result_fail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:background="@color/niu_card"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="❌"
+                android:textSize="40sp"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="未正常触发"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/niu_text"
+                android:gravity="center"
+                android:layout_marginTop="6dp"/>
+
+            <TextView
+                android:id="@+id/tv_fail_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="走到车辆附近仍未触发，建议检查遮挡后重新校准"
+                android:textSize="13sp"
+                android:textColor="@color/niu_text_secondary"
+                android:gravity="center"/>
+
+            <Button
+                android:id="@+id/btn_fail_redo"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="14dp"
+                android:text="重新校准"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/niu_primary"/>
+
+            <Button
+                android:id="@+id/btn_fail_back"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:text="返回手动模式"
+                android:textColor="@color/niu_primary"
+                android:background="@drawable/bg_btn_outline"/>
+        </LinearLayout>
+
+        <!-- 兜底提示 -->
+        <TextView
+            android:id="@+id/tv_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textSize="13sp"
+            android:textColor="@color/niu_error"
+            android:visibility="gone"/>
+    </LinearLayout>
+</ScrollView>

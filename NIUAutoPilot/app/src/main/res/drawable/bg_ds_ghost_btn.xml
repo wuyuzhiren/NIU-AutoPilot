@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  低权重描边按钮（ghost button）— 用于「一键诊断」等低频高级动作
+  设计依据：docs/DESIGN-SPEC.md §3.3 ⑥
+  与 bg_btn_outline 的区别：描边色不用 niu_primary(#1565C0)，改用主题感知的 sci_border，
+  避免把旧蓝色带回页面（见规范 §0.1 三套色彩体系收敛）。
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/sci_badge_stroke">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent"/>
+            <corners android:radius="12dp"/>
+            <stroke android:width="1dp" android:color="@color/sci_border"/>
+        </shape>
+    </item>
+</ripple>

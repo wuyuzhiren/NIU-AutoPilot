@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ================================================================
+  车辆舞台区 + 信息卡 + 按钮区 示范布局（ConstraintLayout 重构版）
+  ================================================================
+  用途：演示如何在现有 fragment_control.xml 中接入 VehicleStageView。
+
+  说明：
+  1. 本布局用 ConstraintLayout 替代了原有 LinearLayout 嵌套，
+     作为「重构示范」供参考，不强制要求替换用户现有布局。
+  2. 若用户现有布局为 LinearLayout，可直接在对应位置放入
+     <com.niu.autopilot.vehicle.VehicleStageView> 即可。
+  3. 所有颜色/尺寸引用自 colors.xml / dimens.xml，不再硬编码。
+  ================================================================
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vehicle_bg_deep_space">
+
+    <!-- ========== 车辆舞台区 ========== -->
+    <FrameLayout
+        android:id="@+id/vehicle_stage_container"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/vehicle_stage_height"
+        android:layout_marginHorizontal="@dimen/vehicle_page_margin"
+        android:layout_marginTop="@dimen/vehicle_page_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 科幻网格背景（可选，低端机可移除） -->
+        <View
+            android:id="@+id/scifi_grid_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/scifi_grid_bg" />
+
+        <!-- 车辆舞台（核心组件） -->
+        <com.niu.autopilot.vehicle.VehicleStageView
+            android:id="@+id/vehicle_stage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- 状态文字（悬浮于车辆左下角） -->
+        <TextView
+            android:id="@+id/tv_vehicle_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:layout_margin="@dimen/vehicle_page_margin_small"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:background="@drawable/glassmorphism_bg"
+            android:text="未连接"
+            android:textColor="@color/vehicle_text_secondary"
+            android:textSize="@dimen/vehicle_text_status_title"
+            android:textStyle="bold" />
+
+        <!-- 连接状态标签（悬浮于车辆右下角） -->
+        <TextView
+            android:id="@+id/tv_connection_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="@dimen/vehicle_page_margin_small"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:background="@drawable/status_chip_bg"
+            android:text="未连接"
+            android:textColor="@color/vehicle_text_secondary"
+            android:textSize="@dimen/vehicle_text_label" />
+    </FrameLayout>
+
+    <!-- ========== 信息卡片区 ========== -->
+    <LinearLayout
+        android:id="@+id/info_cards_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="@dimen/vehicle_page_margin"
+        android:layout_marginTop="@dimen/vehicle_card_gap"
+        app:layout_constraintTop_toBottomOf="@id/vehicle_stage_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 第一行：信号强度 + 距离 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/vehicle_info_card_height"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/info_card_bg"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/vehicle_card_padding"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="信号强度"
+                    android:textColor="@color/vehicle_text_secondary"
+                    android:textSize="@dimen/vehicle_text_aux" />
+
+                <TextView
+                    android:id="@+id/tv_signal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="-- dBm"
+                    android:textColor="@color/vehicle_text_primary"
+                    android:textSize="@dimen/vehicle_text_button_label"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/info_card_bg"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/vehicle_card_padding"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="距离"
+                    android:textColor="@color/vehicle_text_secondary"
+                    android:textSize="@dimen/vehicle_text_aux" />
+
+                <TextView
+                    android:id="@+id/tv_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="远"
+                    android:textColor="@color/vehicle_text_primary"
+                    android:textSize="@dimen/vehicle_text_button_label"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 第二行：电量 + 自动模式 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/vehicle_info_card_height"
+            android:layout_marginTop="@dimen/vehicle_card_gap"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/info_card_bg"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/vehicle_card_padding"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="电池电量"
+                    android:textColor="@color/vehicle_text_secondary"
+                    android:textSize="@dimen/vehicle_text_aux" />
+
+                <TextView
+                    android:id="@+id/tv_battery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="--%"
+                    android:textColor="@color/vehicle_energy_blue"
+                    android:textSize="@dimen/vehicle_text_data_large"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/info_card_bg"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/vehicle_card_padding"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="自动模式"
+                    android:textColor="@color/vehicle_text_secondary"
+                    android:textSize="@dimen/vehicle_text_aux" />
+
+                <TextView
+                    android:id="@+id/tv_auto_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="关闭"
+                    android:textColor="@color/vehicle_text_primary"
+                    android:textSize="@dimen/vehicle_text_button_label"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ========== 快捷按钮区 ========== -->
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/vehicle_card_gap"
+        android:layout_marginBottom="@dimen/vehicle_page_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/info_cards_container"
+        app:layout_constraintVertical_bias="1.0">
+
+        <ImageButton
+            android:id="@+id/btn_power_on"
+            android:layout_width="@dimen/vehicle_button_size"
+            android:layout_height="@dimen/vehicle_button_size"
+            android:background="@drawable/circle_button_bg"
+            android:src="@drawable/ic_power_on"
+            android:contentDescription="开机" />
+
+        <ImageButton
+            android:id="@+id/btn_power_off"
+            android:layout_width="@dimen/vehicle_button_size"
+            android:layout_height="@dimen/vehicle_button_size"
+            android:layout_marginStart="@dimen/vehicle_button_gap"
+            android:background="@drawable/circle_button_bg"
+            android:src="@drawable/ic_power_off"
+            android:contentDescription="关机" />
+
+        <ImageButton
+            android:id="@+id/btn_bucket"
+            android:layout_width="@dimen/vehicle_button_size"
+            android:layout_height="@dimen/vehicle_button_size"
+            android:layout_marginStart="@dimen/vehicle_button_gap"
+            android:background="@drawable/circle_button_bg"
+            android:src="@drawable/ic_bucket"
+            android:contentDescription="坐桶" />
+
+        <ImageButton
+            android:id="@+id/btn_status"
+            android:layout_width="@dimen/vehicle_button_size"
+            android:layout_height="@dimen/vehicle_button_size"
+            android:layout_marginStart="@dimen/vehicle_button_gap"
+            android:background="@drawable/circle_button_bg"
+            android:src="@drawable/ic_status"
+            android:contentDescription="查状态" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

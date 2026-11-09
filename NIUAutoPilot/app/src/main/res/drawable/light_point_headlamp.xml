@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  前大灯光点示例 Drawable
+  实际光效由 VehicleStageView.onDraw 动态绘制（发光+呼吸），
+  本文件仅作为占位参考，展示独立 View 方案的替代用法。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#40FFFFFF" />
+            <size android:width="40dp" android:height="40dp" />
+        </shape>
+    </item>
+    <item android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFFFF" />
+            <size android:width="12dp" android:height="12dp" />
+        </shape>
+    </item>
+</layer-list>

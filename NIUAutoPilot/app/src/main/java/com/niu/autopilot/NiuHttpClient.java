@@ -100,7 +100,7 @@ public class NiuHttpClient {
         }).start();
     }
 
-    /** 查询车辆是否开机（后台线程），msg 返回 "0" 关机 / "1" 开机 */
+    /** 查询车辆是否开机（后台线程），msg 返回 "0" 关机 / "1" 开机，同时提取电量存入sp */
     public void queryAccState(final String account, final String password, final String sn, final Result cb) {
         new Thread(() -> {
             try {
@@ -111,6 +111,11 @@ public class NiuHttpClient {
                 if (j.optInt("status") == 0) {
                     JSONObject d = j.getJSONObject("data");
                     int isAccOn = d.optInt("isAccOn");
+                    int battery = extractBattery(d);
+                    if (battery >= 0) {
+                        sp.edit().putInt("battery_level", battery)
+                                .putLong("battery_update_time", System.currentTimeMillis()).apply();
+                    }
                     cb.onDone(true, String.valueOf(isAccOn));
                 } else {
                     cb.onDone(false, "状态查询失败 " + j.optInt("status"));
@@ -119,6 +124,90 @@ public class NiuHttpClient {
                 cb.onDone(false, "状态查询异常: " + e.getMessage());
             }
         }).start();
+    }
+
+    /** 专门查询车辆电量（小部件刷新用） */
+    public void queryBattery(final String account, final String password, final String sn, final Result cb) {
+        new Thread(() -> {
+            try {
+                String token = getToken(account, password);
+                if (token.isEmpty()) { cb.onDone(false, "登录失败"); return; }
+                String resp = http(STATE_URL + "?sn=" + enc(sn), null, null, UA_ANDROID, token, "GET");
+                JSONObject j = new JSONObject(resp);
+                if (j.optInt("status") == 0) {
+                    JSONObject d = j.getJSONObject("data");
+                    int battery = extractBattery(d);
+                    if (battery >= 0) {
+                        sp.edit().putInt("battery_level", battery)
+                                .putLong("battery_update_time", System.currentTimeMillis()).apply();
+                        cb.onDone(true, String.valueOf(battery));
+                    } else {
+                        cb.onDone(false, "未获取到电量");
+                    }
+                } else {
+                    cb.onDone(false, "查询失败 " + j.optInt("status"));
+                }
+            } catch (Exception e) {
+                cb.onDone(false, "查询异常: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    /**
+     * 从data对象中提取电量百分比，返回-1表示未找到。
+     * v3.3: 优先走官方精确路径 data.batteries.compartmentA.batteryCharging
+     * （原 12 个候选 key 全部不匹配真实响应，导致电量长期取不到）。
+     * 双电车型 compartmentB 存在时取两包平均值。
+     */
+    private int extractBattery(JSONObject d) {
+        // 1) 精确路径：batteries.compartmentA/B.batteryCharging
+        try {
+            JSONObject batteries = d.optJSONObject("batteries");
+            if (batteries != null) {
+                int a = batteryFromCompartment(batteries.optJSONObject("compartmentA"));
+                int b = batteryFromCompartment(batteries.optJSONObject("compartmentB"));
+                if (a >= 0 && b >= 0) return (a + b) / 2;
+                if (a >= 0) return a;
+                if (b >= 0) return b;
+            }
+        } catch (Exception ignored) {}
+
+        // 2) 兜底：旧候选 key（兼容个别车型/老固件）
+        String[] keys = {"battery", "soc", "batteryPercent", "batteryLevel", "power",
+                "remainPower", "batteryCapacity", "electricity", "batteryPercentage",
+                "batteryInfo", "batteryNum", "batteryVal"};
+        for (String key : keys) {
+            if (d.has(key)) {
+                try {
+                    Object val = d.get(key);
+                    if (val instanceof Number) {
+                        int b = ((Number) val).intValue();
+                        if (b >= 0 && b <= 100) return b;
+                    } else if (val instanceof JSONObject) {
+                        JSONObject bObj = (JSONObject) val;
+                        for (String k2 : keys) {
+                            if (bObj.has(k2)) {
+                                int b = bObj.optInt(k2, -1);
+                                if (b >= 0 && b <= 100) return b;
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+        return -1;
+    }
+
+    /** 从单个电池舱取电量；未连接或字段缺失返回 -1 */
+    private int batteryFromCompartment(JSONObject compartment) {
+        if (compartment == null) return -1;
+        if (!compartment.optBoolean("isConnected", true)) return -1;
+        int v = compartment.optInt("batteryCharging", -1);
+        if (v < 0 || v > 100) {
+            double dv = compartment.optDouble("batteryCharging", -1);
+            if (dv >= 0 && dv <= 100) v = (int) Math.round(dv);
+        }
+        return (v >= 0 && v <= 100) ? v : -1;
     }
 
     private static String enc(String s) {

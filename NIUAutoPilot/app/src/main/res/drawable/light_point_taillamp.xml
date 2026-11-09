@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 尾灯光点示例 Drawable（占位参考） -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#40EF4444" />
+            <size android:width="32dp" android:height="32dp" />
+        </shape>
+    </item>
+    <item android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#FFEF4444" />
+            <size android:width="10dp" android:height="10dp" />
+        </shape>
+    </item>
+</layer-list>

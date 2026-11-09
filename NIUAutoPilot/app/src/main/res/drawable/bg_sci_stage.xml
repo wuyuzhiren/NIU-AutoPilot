@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v2.67 科幻车辆舞台：深空渐变 + 能量描边（v2.2 随主题切换，开机时由代码高亮） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:startColor="@color/sci_stage_start" android:endColor="@color/sci_stage_end" android:angle="135"/>
+    <corners android:topLeftRadius="16dp" android:topRightRadius="16dp"/>
+</shape>

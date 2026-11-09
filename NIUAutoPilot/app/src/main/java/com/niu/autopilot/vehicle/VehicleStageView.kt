@@ -51,6 +51,35 @@ class VehicleStageView @JvmOverloads constructor(
 
     private val overlay: OverlayView = OverlayView(context)
 
+    /**
+     * v3.3 真实灯效层：SCREEN 混合 + fx_* 贴图分层绘制。
+     * 与旧 overlay 并存，通过 useLightFx 开关切换；默认启用新实现。
+     */
+    val lightFx: LightFxLayer = LightFxLayer(context)
+
+    /**
+     * v3.4: 把坐桶几何变换回灌口接上，否则 LightFxAnimator 只能驱动灯、
+     * 驱动不了坐垫位移/旋转（设计规范 §5.4 指出的缺口）。
+     */
+    private val lightFxAnimator: LightFxAnimator = LightFxAnimator(
+        lightFx,
+        object : LightFxAnimator.BucketTransformSink {
+            override fun setBucketLift(dp: Float) { this@VehicleStageView.bucketLiftDp = dp }
+            override fun setBucketRotation(deg: Float) { this@VehicleStageView.bucketRotationDeg = deg }
+            override fun setBucketVisible(v: Float) { this@VehicleStageView.bucketVisible = v }
+        }
+    )
+
+    /** 是否使用 v3.3 真实灯效（false 回退旧 OverlayView 行为） */
+    var useLightFx: Boolean = true
+        set(value) {
+            field = value
+            lightFx.visibility = if (value) View.VISIBLE else View.GONE
+            if (value) overlay.hideLegacyLights()
+            overlay.invalidate()
+        }
+
+
     // ==================== 公开属性 ====================
     var lightPoints: List<VehicleLightPoint> = VehicleLightPoint.defaultPoints()
         set(value) {
@@ -124,7 +153,20 @@ class VehicleStageView @JvmOverloads constructor(
         }
 
     /**
-     * 坐桶图层可见度：0 隐藏，>0 显示（用于弹开动画插值）。
+     * 坐桶图层可见度 0~1。
+     *
+     * v3.5 重做：`nx_body.webp` 与 `nx_bucket.webp` 是**同车型、同视角**的两张渲染图
+     * （body = 座垫闭合，bucket = 座垫掀开露出储物桶），alpha bbox 分别为
+     * (437,70,1063,930) 与 (453,70,1047,930)。
+     * 所以「开坐桶」就是**两张图淡变**，不需要任何位移/旋转/整车跳动。
+     *
+     * 实现要点：body 层始终 alpha=1 垫在下面，bucket 层用 field 做 alpha 叠上去。
+     * 逐像素结果 = field*bucket + (1-field)*body，合成 alpha 恒为 1 ——
+     * 这本身就是标准交叉淡变，且中途整台车不会「发虚」透出背景。
+     * （若两层同时淡，合成 alpha 会掉到 field+(1-field)² < 1，中途车身会半透明。）
+     *
+     * 两层都保持 MATCH_PARENT + FIT_CENTER，**绝不能各自裁 alpha bbox**
+     * （裁完宽度 626 vs 594 会错位）。
      */
     var bucketVisible: Float = 0f
         set(value) {
@@ -135,28 +177,27 @@ class VehicleStageView @JvmOverloads constructor(
         }
 
     /**
-     * 坐桶图层弹开位移（dp，负值=向上弹起），模拟坐垫以尾部铰链掀开。
+     * v3.5: 保留接口但**不再产生位移**。
+     *
+     * 旧实现给 bucketImage 加 translationY（还附带 translationX = value*0.18），
+     * 会让整张掀盖图平移 —— 观感就是用户说的「整个车辆跳动」。
+     * 真实机械动作已经烘焙进 nx_bucket.webp，任何位移都是错的。
      */
     var bucketLiftDp: Float = 0f
         set(value) {
             field = value
-            bucketImage.translationY = dpToPx(value)
-            bucketImage.translationX = dpToPx(value * 0.18f)
         }
 
     /**
-     * 坐桶图层旋转角（度），铰链在尾部（约整车 60% 宽、38% 高位置），模拟掀开。
+     * v3.5: 保留接口但**不再旋转**。
+     *
+     * 旧实现的 pivot 取的是 ImageView 宽高的 0.62/0.38，而车身是按 FIT_CENTER
+     * 等比缩放后居中绘制的，铰链点实际落在车身之外 → 旋转时整图「飘」。
+     * 掀开角度已烘焙进 nx_bucket.webp，不需要再旋转。
      */
     var bucketRotationDeg: Float = 0f
         set(value) {
             field = value
-            val w = bucketImage.width
-            val h = bucketImage.height
-            // 尾部铰链：位于图片 60% 宽、38% 高处（贴合坐垫尾部位置）
-            bucketImage.pivotX = if (w > 0) w * 0.62f else 0f
-            bucketImage.pivotY = if (h > 0) h * 0.38f else 0f
-            bucketImage.rotation = value
-            bucketImage.invalidate()
         }
 
     // ==================== 主题感知属性（新增）====================
@@ -208,6 +249,10 @@ class VehicleStageView @JvmOverloads constructor(
         // 坐桶图层置于车身之上（zIndex 更高）
         addView(bucketImage, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply { z = 1f })
         addView(overlay, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply { z = 2f })
+        // v3.3 真实灯效层置于最上层（z=3），SCREEN 混合叠加在车身上
+        addView(lightFx, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply { z = 3f })
+        lightFx.visibility = if (useLightFx) View.VISIBLE else View.GONE
+        if (useLightFx) overlay.hideLegacyLights()
         applyBodyVisuals()
         if (enableRingRotation) startRingRotation()
     }
@@ -228,6 +273,37 @@ class VehicleStageView @JvmOverloads constructor(
 
     fun setBucketImageBitmap(bitmap: Bitmap) {
         bucketImage.setImageBitmap(bitmap)
+    }
+
+    // ==================== v3.3 真实灯效 API ====================
+
+    /** 播放开机灯效：大灯照亮 → 光束推出 → 尾灯自检闪 → 地面光斑 */
+    fun playLightPowerOn(onEnd: (() -> Unit)? = null) {
+        if (useLightFx) lightFxAnimator.playPowerOn(onEnd)
+    }
+
+    /** 播放关机灯效：双闪（左右同相）→ 光束收缩 → 灯全灭 */
+    fun playLightPowerOff(onEnd: (() -> Unit)? = null) {
+        if (useLightFx) lightFxAnimator.playPowerOff(onEnd)
+    }
+
+    /** 开坐桶：欠阻尼弹簧 + 箱内透光 */
+    fun playLightBucketOpen(onEnd: (() -> Unit)? = null) {
+        if (useLightFx) lightFxAnimator.playBucketOpen(onEnd)
+    }
+
+    fun playLightBucketClose(onEnd: (() -> Unit)? = null) {
+        if (useLightFx) lightFxAnimator.playBucketClose(onEnd)
+    }
+
+    /** 全部熄灭 */
+    fun resetLights() {
+        lightFxAnimator.stopAll()
+    }
+
+    /** 设置动画速度倍率（无障碍"关闭动画"时为 0，直接跳终态） */
+    fun setAnimationScale(scale: Float) {
+        lightFxAnimator.durationScale = scale.coerceIn(0f, 3f)
     }
 
     fun setLightAlpha(type: VehicleLightPoint.Type, alpha: Float) {
@@ -297,7 +373,12 @@ class VehicleStageView @JvmOverloads constructor(
             0f, 0f, 0f, 1f, 0f
         ))
         bodyColorMatrix.postConcat(brightnessMatrix)
-        bodyImage.colorFilter = ColorMatrixColorFilter(bodyColorMatrix)
+        val filter = ColorMatrixColorFilter(bodyColorMatrix)
+        bodyImage.colorFilter = filter
+        // v3.5: 坐桶图层必须套同一个 colorFilter。
+        // 否则关机态（brightness 0.6 / saturation 0.2）掀开坐桶时，
+        // 掀盖图会以「全亮全饱和」叠在压暗的车身上，看起来像贴纸。
+        bucketImage.colorFilter = filter
     }
 
     private fun dpToPx(dp: Float): Float = dp * resources.displayMetrics.density
@@ -307,6 +388,9 @@ class VehicleStageView @JvmOverloads constructor(
     private inner class OverlayView(context: Context) : View(context) {
 
         private val glowRect = RectF()
+
+        /** v3.3：启用 LightFxLayer 后关闭旧光点/光束/扫描线绘制 */
+        private var legacyLightsHidden = false
 
         // 缓存 Shader 与 PathEffect
         private var cachedGlowShader: RadialGradient? = null
@@ -336,10 +420,22 @@ class VehicleStageView @JvmOverloads constructor(
             if (w <= 0 || h <= 0) return
 
             drawGlow(canvas, w, h)
-            if (enableScanLine) drawScanLine(canvas, w, h)
+            if (enableScanLine && !legacyLightsHidden) drawScanLine(canvas, w, h)
             drawRadarRings(canvas, w, h)
-            drawLightPoints(canvas, w, h)
-            drawBeam(canvas, w, h)
+            if (!legacyLightsHidden) {
+                drawLightPoints(canvas, w, h)
+                drawBeam(canvas, w, h)
+            }
+        }
+
+        /**
+         * v3.3：启用新 LightFxLayer 后关闭旧的光点/光束/扫描线绘制，
+         * 避免两套灯效叠加（这是 v3.2 "生硬" 的原因之一）。
+         * 底座光晕和雷达环保留（它们是氛围元素，不是灯）。
+         */
+        fun hideLegacyLights() {
+            legacyLightsHidden = true
+            invalidate()
         }
 
         /** 底座光晕：椭圆径向渐变 — 使用 themeAccentColor */

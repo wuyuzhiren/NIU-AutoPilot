@@ -12,7 +12,20 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/niu_text"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="8dp"/>
+    <EditText
+        android:id="@+id/et_log_filter"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:hint="搜索：触发/开机/关机/失败/电量…"
+        android:background="@drawable/bg_input"
+        android:paddingHorizontal="12dp"
+        android:textSize="13sp"
+        android:textColor="@color/niu_text"
+        android:textColorHint="@color/niu_hint"
+        android:inputType="text"
+        android:singleLine="true"
+        android:layout_marginBottom="8dp"/>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -27,12 +40,27 @@
             android:fontFamily="monospace"
             android:textColor="@color/niu_text"/>
     </ScrollView>
-    <Button
-        android:id="@+id/btn_close_log"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:layout_marginTop="10dp"
-        android:text="关闭"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="@color/niu_text_secondary"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+        <Button
+            android:id="@+id/btn_export_log"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="导出日志"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="@color/niu_primary"
+            android:layout_marginEnd="6dp"/>
+        <Button
+            android:id="@+id/btn_close_log"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="关闭"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="@color/niu_text_secondary"/>
+    </LinearLayout>
 </LinearLayout>

@@ -59,6 +59,14 @@ public class ControlFragment extends Fragment {
     /** v2.77 手动按钮刚播过动画（避免 refreshUi 翻转检测重复播放） */
     private boolean manualAnimJustPlayed = false;
 
+    // v3.3 里程数据卡片
+    private NiuMileageClient mileageClient;
+    private TextView tvTotalMileage, tvTodayMileage, tvAvgSpeed, tvMaxSpeed, tvRideTime, tvLastRide;
+    private TextView tvBindDays;
+    private android.widget.LinearLayout llRecentRides;
+    private TextView tvMileageRefresh;
+    private boolean mileageLoading = false;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -116,6 +124,9 @@ public class ControlFragment extends Fragment {
         // v2.2 主题感知：按当前主题模式（0跟随系统/1浅色/2深色）设置动画强调色
         applyThemeToStage();
 
+        // v3.3 里程数据卡片
+        initMileageCard(view);
+
         swAutoOn.setOnCheckedChangeListener((b, c) -> {
             if (!refreshing) { act.settings.setAutoOn(c); if (c) swAutoOff.setChecked(false); }
         });
@@ -123,9 +134,24 @@ public class ControlFragment extends Fragment {
             if (!refreshing) { act.settings.setAutoOff(c); if (c) swAutoOn.setChecked(false); }
         });
 
-        btnPowerOn.setOnClickListener(v -> { ScifiPowerAnimator.INSTANCE.playPowerOn(requireView()); runCommand(Settings.CMD_POWER_ON, "开机", R.id.tv_power_on_label, "开机", true); });
-        btnPowerOff.setOnClickListener(v -> { ScifiPowerAnimator.INSTANCE.playPowerOff(requireView()); runCommand(Settings.CMD_POWER_OFF, "关机", R.id.tv_power_off_label, "关机", false); });
-        btnSeat.setOnClickListener(v -> { ScifiPowerAnimator.INSTANCE.playSeatOpen(requireView()); runCommand(Settings.CMD_SEAT, "开坐桶", R.id.tv_seat_label, "开坐桶", null); });
+        // v3.3：真实灯效替代原紫红色扫描线动画。
+        // 大灯照亮→光束推出→尾灯自检闪 2 下→地面光斑（开机）
+        // 双闪左右同相 2 次→光束收缩→全灭（关机）
+        btnPowerOn.setOnClickListener(v -> {
+            animateButtonClick(v);
+            if (vehicleStage != null) vehicleStage.playLightPowerOn(null);
+            runCommand(Settings.CMD_POWER_ON, "开机", R.id.tv_power_on_label, "开机", true);
+        });
+        btnPowerOff.setOnClickListener(v -> {
+            animateButtonClick(v);
+            if (vehicleStage != null) vehicleStage.playLightPowerOff(null);
+            runCommand(Settings.CMD_POWER_OFF, "关机", R.id.tv_power_off_label, "关机", false);
+        });
+        btnSeat.setOnClickListener(v -> {
+            animateButtonClick(v);
+            if (vehicleStage != null) vehicleStage.playLightBucketOpen(null);
+            runCommand(Settings.CMD_SEAT, "开坐桶", R.id.tv_seat_label, "开坐桶", null);
+        });
         btnCheck.setOnClickListener(v -> {
             animateButtonClick(v);
             act.queryState();
@@ -149,14 +175,14 @@ public class ControlFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // v2.79: 同步主题给环境动画器（跟随App自定义深浅模式）
-        ScifiPowerAnimator.INSTANCE.setLightTheme(MainActivity.isLightThemeActive(act));
+        // v3.4: ScifiPowerAnimator 已退出控制页（设计规范 §5.1 单一动画所有权）。
+        // 它基于 overlay addView，会和 LightFxLayer 争 vehicle_stage_container。
         autoCheckStateIfReady();
     }
 
     @Override
     public void onDestroyView() {
-        ScifiPowerAnimator.INSTANCE.onDestroy(getView()); // v2.79: 取消环境动画并清理overlay防泄漏
+        // v3.4: 只清理仍在使用中的动画资源
         if (vehicleAnimation != null) vehicleAnimation.release();
         if (vehicleStateMachine != null) vehicleStateMachine.dispose();
         super.onDestroyView();
@@ -224,22 +250,18 @@ public class ControlFragment extends Fragment {
         act.sendCommand(type, label,
                 () -> {
                     flashCheck(labelId, original);
-                    // v1.1 组件：指令成功 → 播放对应状态动画
+                    // v3.4: 单一动画所有权（设计规范 §5.1）
+                    // 灯效已由按钮点击时的 vehicleStage.playLightXxx() 唯一驱动，
+                    // 这里【不再】调 vehicleAnimation.playXxxAnimation()，避免两套时间轴互相掐断
+                    // —— 这是"动画生硬"的头号根因。
                     manualAnimJustPlayed = true;
-                    if (powerState != null) {
-                        if (powerState) {
-                            vehicleAnimation.playPowerOnAnimation();
-                        } else {
-                            vehicleAnimation.playPowerOffAnimation();
-                        }
-                    } else {
-                        vehicleAnimation.playBucketOpenAnimation();
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> vehicleAnimation.playBucketCloseAnimation(), 3000);
-                    }
                 },
                 (ok, msg) -> {
                     setCommandSending(false);
-                    if (!ok) vehicleAnimation.rollback();
+                    if (!ok && vehicleStage != null) {
+                        // 命令失败才回滚视觉（灯效直接复位，不做补偿动画）
+                        vehicleStage.resetLights();
+                    }
                     refreshUi();
                 });
     }
@@ -355,14 +377,15 @@ public class ControlFragment extends Fragment {
         // v1.1 组件：刷新时按车辆实际状态同步视觉（不触发过渡动画，避免打断用户操作）
         // v2.77 增强：若状态相对上次发生了"翻转"（且不是手动按钮刚播过动画），补播过渡动画，
         //       让自动模式（靠近开机/离开关机）也有完整灯光效果
+        // v3.4: 改为调用【唯一入口】playLightPowerOn/Off（设计规范 §5.1）
         boolean flipped = (isOn != lastSyncedPowerOn);
         syncVehicleVisual(isOn);
         lastSyncedPowerOn = isOn;
-        if (flipped && !commandSending && !manualAnimJustPlayed && vehicleAnimation != null) {
+        if (flipped && !commandSending && !manualAnimJustPlayed && vehicleStage != null) {
             if (isOn) {
-                vehicleAnimation.playPowerOnAnimation();
+                vehicleStage.playLightPowerOn(null);
             } else if ("已关机".equals(act.vehicleState)) {
-                vehicleAnimation.playPowerOffAnimation();
+                vehicleStage.playLightPowerOff(null);
             }
         }
         manualAnimJustPlayed = false;
@@ -378,16 +401,27 @@ public class ControlFragment extends Fragment {
 
         String devName = act.settings.getDeviceName();
         boolean connected = act.autoModeRunning && act.rssiValid;
+        // v3.4: 保留设计规范 §3.3 的描边胶囊（bg_sci_badge），只换文字与着色。
+        // 旧实现 setBackgroundResource(bg_badge_*) 会把描边胶囊换成实心色块，
+        // 吃掉新视觉（设计规范交付说明第 1 条）。
+        int badgeColor;
+        String badgeText;
         if (devName == null || devName.isEmpty()) {
-            tvStatusBadge.setText("未绑定");
-            tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_disconnected);
+            badgeText = "未绑定";
+            badgeColor = 0xFF94A3B8;
         } else if (connected) {
-            tvStatusBadge.setText("已连接");
-            tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_connected);
+            badgeText = "已连接";
+            badgeColor = 0xFF22C55E;
         } else {
-            tvStatusBadge.setText("未连接");
-            tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_disconnected);
+            badgeText = "未连接";
+            badgeColor = 0xFF94A3B8;
         }
+        tvStatusBadge.setText(badgeText);
+        tvStatusBadge.setTextColor(badgeColor);
+        // 只对背景做着色（保留 drawable 形状），不替换 drawable
+        tvStatusBadge.setBackgroundTintList(
+                android.content.res.ColorStateList.valueOf(
+                        (badgeColor & 0x00FFFFFF) | 0x1F000000));
 
         updateSignalRow();
         updateBattery();
@@ -509,7 +543,240 @@ public class ControlFragment extends Fragment {
         }
     }
 
+    // ==================== v3.3 里程数据卡片 ====================
+
+    private void initMileageCard(View view) {
+        if (act == null) return;
+        mileageClient = new NiuMileageClient(act);
+        tvTotalMileage = view.findViewById(R.id.tv_total_mileage);
+        tvTodayMileage = view.findViewById(R.id.tv_today_mileage);
+        tvAvgSpeed = view.findViewById(R.id.tv_avg_speed);
+        tvMaxSpeed = view.findViewById(R.id.tv_max_speed);
+        tvRideTime = view.findViewById(R.id.tv_ride_time);
+        tvLastRide = view.findViewById(R.id.tv_last_ride);
+        tvBindDays = view.findViewById(R.id.tv_bind_days);
+        llRecentRides = view.findViewById(R.id.ll_recent_rides);
+        tvMileageRefresh = view.findViewById(R.id.tv_mileage_refresh);
+
+        if (tvMileageRefresh != null) {
+            tvMileageRefresh.setOnClickListener(v -> loadMileage(true));
+        }
+
+        // v3.4: 新增的 3 个折叠交互 ID（设计规范 §3.3，布局注释里列出的 Java 侧配合点）
+        // ① 最近骑行 展开/收起
+        TextView tvRecentToggle = view.findViewById(R.id.tv_recent_rides_toggle);
+        if (tvRecentToggle != null && llRecentRides != null) {
+            tvRecentToggle.setOnClickListener(v -> {
+                boolean expand = llRecentRides.getVisibility() != View.VISIBLE;
+                llRecentRides.setVisibility(expand ? View.VISIBLE : View.GONE);
+                tvRecentToggle.setText(expand ? "▾ 最近骑行" : "▸ 最近骑行");
+            });
+        }
+        // ② 自动模式详细参数 展开/收起
+        TextView tvAutoExpand = view.findViewById(R.id.tv_auto_expand);
+        View llAutoDetail = view.findViewById(R.id.ll_auto_detail);
+        if (tvAutoExpand != null && llAutoDetail != null) {
+            tvAutoExpand.setOnClickListener(v -> {
+                boolean expand = llAutoDetail.getVisibility() != View.VISIBLE;
+                llAutoDetail.setVisibility(expand ? View.VISIBLE : View.GONE);
+                tvAutoExpand.setText(expand ? "▾ 详细参数" : "▸ 详细参数");
+            });
+        }
+
+        // 有账号/SN 才自动加载，避免未配置时报错
+        String account = act.settings.getAccount();
+        String sn = act.settings.getSn();
+        if (account != null && !account.isEmpty() && sn != null && !sn.isEmpty()) {
+            loadMileage(false);
+        } else {
+            if (tvBindDays != null) { setBindDaysCapsule(false); tvBindDays.setText("请先在「我的」页登录并绑定车辆"); }
+        }
+    }
+
+    /** 拉取并渲染里程数据 */
+    private void loadMileage(boolean manual) {
+        if (act == null || mileageClient == null) return;
+        if (mileageLoading) return;
+
+        String account = act.settings.getAccount();
+        String password = act.settings.getPassword();
+        String sn = act.settings.getSn();
+        if (account == null || account.isEmpty() || sn == null || sn.isEmpty()) {
+            if (manual) Toast.makeText(act, "请先登录并绑定车辆", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mileageLoading = true;
+        if (tvBindDays != null) { setBindDaysCapsule(false); tvBindDays.setText("正在获取里程数据…"); }
+        if (tvMileageRefresh != null) tvMileageRefresh.setText("…");
+
+        mileageClient.loadSummary(account, password, sn, (ok, s, msg) -> {
+            mileageLoading = false;
+            if (getActivity() == null || !isAdded()) return;
+            if (tvMileageRefresh != null) tvMileageRefresh.setText("刷新");
+
+            if (!ok) {
+                if (tvBindDays != null) { setBindDaysCapsule(false); tvBindDays.setText("获取失败：" + msg); }
+                if (manual) Toast.makeText(act, "获取失败：" + msg, Toast.LENGTH_LONG).show();
+                return;
+            }
+            renderMileage(s);
+        });
+    }
+
+    private void renderMileage(NiuMileageClient.MileageSummary s) {
+        if (tvTotalMileage != null) {
+            tvTotalMileage.setText(s.totalMileageKm >= 0
+                    ? String.format(java.util.Locale.US, "%.1f", s.totalMileageKm) : "—");
+        }
+        if (tvTodayMileage != null) {
+            tvTodayMileage.setText(s.todayKm >= 0
+                    ? String.format(java.util.Locale.US, "%.1f", s.todayKm) : "—");
+        }
+        // 上次骑行：大数字，与总里程/今日里程同级
+        if (tvLastRide != null) {
+            tvLastRide.setText(s.lastRideKm >= 0
+                    ? String.format(java.util.Locale.US, "%.1f", s.lastRideKm) : "—");
+        }
+        // v3.7: 三格指标全部取【最近一次骑行】的同一份数据，
+        // 不再用今天的 todayAvgSpeed / todayMaxSpeed / todayRidingTimeSec。
+        // 用户原话（m08917）：「平均速度以及最高车速和时间应该都是最近最新的一次骑行数据才对」
+        if (tvAvgSpeed != null) {
+            tvAvgSpeed.setText(s.lastRideAvgSpeed >= 0
+                    ? String.format(java.util.Locale.US, "%.0f", s.lastRideAvgSpeed) : "—");
+        }
+        if (tvMaxSpeed != null) {
+            tvMaxSpeed.setText(s.lastRideMaxSpeed >= 0
+                    ? String.format(java.util.Locale.US, "%.0f", s.lastRideMaxSpeed) : "—");
+        }
+        if (tvRideTime != null) {
+            tvRideTime.setText(s.lastRideSec >= 0
+                    ? formatDuration(s.lastRideSec) : "—");
+        }
+
+        // 陪伴天数：顶部居中胶囊
+        // v3.4: 长文本/错误态时去掉胶囊背景，否则 12sp 单行省略会把提示截成半句话
+        // （设计规范交付说明第 2 条）
+        if (tvBindDays != null) {
+            if (s.bindDays > 0) {
+                setBindDaysCapsule(true);
+                tvBindDays.setText("已陪伴你 " + s.bindDays + " 天");
+            } else {
+                setBindDaysCapsule(false);
+                tvBindDays.setText("");
+            }
+        }
+
+        // 最近骑行列表：默认折叠，填充数据后保持 gone 由用户手动展开
+        if (llRecentRides != null) {
+            llRecentRides.removeAllViews();
+            if (s.recentRides != null && !s.recentRides.isEmpty()) {
+                int shown = 0;
+                for (NiuMileageClient.Ride r : s.recentRides) {
+                    if (shown >= 5) break;
+                    if (r.distanceKm < 0) continue;
+                    llRecentRides.addView(buildRideRow(r));
+                    shown++;
+                }
+            }
+        }
+    }
+
+    /**
+     * v3.4: 陪伴天数胶囊开关。
+     * 正常态保留布局里的 bg_sci_badge 胶囊（accent 描边）；
+     * 提示/错误态去掉背景并放开行数，否则 12sp 单行省略会把提示截成半句话。
+     */
+    private void setBindDaysCapsule(boolean capsule) {
+        if (tvBindDays == null) return;
+        if (capsule) {
+            tvBindDays.setBackgroundResource(R.drawable.bg_sci_badge);
+            tvBindDays.setMaxLines(1);
+            tvBindDays.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            tvBindDays.setTextColor(0xFF00D4FF);
+        } else {
+            tvBindDays.setBackground(null);
+            tvBindDays.setMaxLines(3);
+            tvBindDays.setEllipsize(null);
+            tvBindDays.setTextColor(0xFF94A3B8);
+        }
+    }
+
+    /** 构建单条骑行记录行 */
+    private View buildRideRow(NiuMileageClient.Ride r) {
+        android.widget.LinearLayout row = new android.widget.LinearLayout(act);
+        row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        row.setPadding(0, dp(5), 0, dp(5));
+
+        TextView left = new TextView(act);
+        left.setText(dateLabel(r.startMs, r.date));
+        left.setTextSize(11f);
+        left.setTextColor(0xFF94A3B8);
+        left.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView mid = new TextView(act);
+        mid.setText(String.format(java.util.Locale.US, "%.1f km", r.distanceKm));
+        mid.setTextSize(11f);
+        mid.setTextColor(0xFFCBD5E1);
+        mid.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView right = new TextView(act);
+        right.setText(r.avgSpeed >= 0
+                ? String.format(java.util.Locale.US, "均速 %.0f", r.avgSpeed) : "");
+        right.setTextSize(11f);
+        right.setTextColor(0xFF94A3B8);
+        right.setGravity(android.view.Gravity.END);
+        right.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        row.addView(left);
+        row.addView(mid);
+        row.addView(right);
+        return row;
+    }
+
+    private int dp(float v) {
+        return (int) (v * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    /** 秒 → "1小时23分" / "23分" / "45秒" */
+    private static String formatDuration(int sec) {
+        if (sec < 0) return "—";
+        int h = sec / 3600;
+        int m = (sec % 3600) / 60;
+        if (h > 0) return h + "小时" + m + "分";
+        if (m > 0) return m + "分";
+        return sec + "秒";
+    }
+
+    /** 时间戳 → "刚刚" / "3小时前" / "2天前" */
+    private static String relativeTime(long ms) {
+        long diff = System.currentTimeMillis() - ms;
+        if (diff < 0) return "";
+        long min = diff / 60000;
+        if (min < 1) return "刚刚";
+        if (min < 60) return min + "分钟前";
+        long h = min / 60;
+        if (h < 24) return h + "小时前";
+        return (h / 24) + "天前";
+    }
+
+    /** 日期标签：优先用 date(yyyyMMdd)，否则由时间戳格式化 */
+    private static String dateLabel(long ms, String date) {
+        if (date != null && date.length() == 8) {
+            return date.substring(4, 6) + "/" + date.substring(6, 8);
+        }
+        if (ms > 0) {
+            return new java.text.SimpleDateFormat("MM/dd", java.util.Locale.US)
+                    .format(new java.util.Date(ms));
+        }
+        return "";
+    }
+
     private void updatePulse() {
+
         if (act.autoModeRunning) {
             scanPulse.setVisibility(View.VISIBLE);
             scanPulse.startPulse();

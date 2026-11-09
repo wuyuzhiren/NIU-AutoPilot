@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- 上行：状态 + 电量 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/notif_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="小牛靠近开机助手"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#333333"/>
+
+            <TextView
+                android:id="@+id/notif_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="自动模式运行中"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/notif_battery_box"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/notif_battery_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔋"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/notif_battery_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="59%"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#43A047"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 下行：4个快捷按钮（单字，居中，绝不裁切） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:weightSum="4">
+
+        <TextView
+            android:id="@+id/notif_btn_on"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="开"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="3dp"
+            android:background="#4CAF50"/>
+
+        <TextView
+            android:id="@+id/notif_btn_off"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="关"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="3dp"
+            android:background="#F44336"/>
+
+        <TextView
+            android:id="@+id/notif_btn_seat"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="桶"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="3dp"
+            android:background="#2196F3"/>
+
+        <TextView
+            android:id="@+id/notif_btn_auto"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="动"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF"
+            android:background="#FF9800"/>
+    </LinearLayout>
+</LinearLayout>

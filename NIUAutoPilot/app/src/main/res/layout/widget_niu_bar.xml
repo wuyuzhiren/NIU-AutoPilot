@@ -6,14 +6,22 @@
     android:background="@drawable/bg_widget_bar"
     android:padding="6dp">
 
-    <!-- 顶部状态条 -->
+    <!-- 顶部：车辆图 + 状态 + 电量 + 诊断 + 刷新 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="4dp"
-        android:layout_marginBottom="2dp">
+        android:layout_marginBottom="4dp">
+
+        <ImageView
+            android:id="@+id/iv_bar_car"
+            android:layout_width="48dp"
+            android:layout_height="36dp"
+            android:scaleType="fitCenter"
+            android:layout_marginEnd="4dp"/>
+
         <TextView
             android:id="@+id/tv_bar_state"
             android:layout_width="0dp"
@@ -24,22 +32,78 @@
             android:textColor="#B3FFFFFF"
             android:singleLine="true"
             android:ellipsize="end"/>
-        <TextView
-            android:id="@+id/tv_bar_signal"
-            android:layout_width="wrap_content"
+
+        <!-- 电量：进度条 + 百分比叠加 -->
+        <FrameLayout
+            android:layout_width="52dp"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="10sp"
-            android:textColor="#80FFFFFF"/>
+            android:layout_marginHorizontal="3dp">
+
+            <ProgressBar
+                android:id="@+id/pb_bar_battery"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/bg_battery_progress"
+                android:indeterminate="false"/>
+
+            <TextView
+                android:id="@+id/tv_bar_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="--%"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="2"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_bar_diagnostic"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="2dp">
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@android:drawable/ic_menu_compass"
+                android:tint="#FFFFAB91"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_bar_refresh"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@android:drawable/ic_menu_rotate"
+                android:tint="#80FFFFFF"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- 四个按钮横向排列 -->
+    <!-- 四个按钮横向排列 - 图标+文字，各带颜色 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal">
 
+        <!-- 开机 绿色 -->
         <LinearLayout
             android:id="@+id/btn_bar_on"
             android:layout_width="0dp"
@@ -52,20 +116,21 @@
             android:clickable="true"
             android:focusable="true">
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@android:drawable/ic_lock_power_off"
-                android:tint="#B3FFFFFF"/>
+                android:tint="#66BB6A"/>
             <TextView
                 android:id="@+id/tv_bar_on_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="开机"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textColor="#B3FFFFFF"
-                android:layout_marginTop="2dp"/>
+                android:layout_marginTop="1dp"/>
         </LinearLayout>
 
+        <!-- 关机 红色 -->
         <LinearLayout
             android:id="@+id/btn_bar_off"
             android:layout_width="0dp"
@@ -79,20 +144,21 @@
             android:clickable="true"
             android:focusable="true">
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:tint="#B3FFFFFF"/>
+                android:tint="#EF5350"/>
             <TextView
                 android:id="@+id/tv_bar_off_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="关机"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textColor="#B3FFFFFF"
-                android:layout_marginTop="2dp"/>
+                android:layout_marginTop="1dp"/>
         </LinearLayout>
 
+        <!-- 坐桶 橙色 -->
         <LinearLayout
             android:id="@+id/btn_bar_seat"
             android:layout_width="0dp"
@@ -106,20 +172,21 @@
             android:clickable="true"
             android:focusable="true">
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@android:drawable/ic_menu_more"
-                android:tint="#B3FFFFFF"/>
+                android:tint="#FFA726"/>
             <TextView
                 android:id="@+id/tv_bar_seat_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="坐桶"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textColor="#B3FFFFFF"
-                android:layout_marginTop="2dp"/>
+                android:layout_marginTop="1dp"/>
         </LinearLayout>
 
+        <!-- 自动 紫色 -->
         <LinearLayout
             android:id="@+id/btn_bar_auto"
             android:layout_width="0dp"
@@ -132,18 +199,18 @@
             android:clickable="true"
             android:focusable="true">
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@android:drawable/ic_menu_rotate"
-                android:tint="#B3FFFFFF"/>
+                android:tint="#B388FF"/>
             <TextView
                 android:id="@+id/tv_bar_auto_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="自动"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textColor="#B3FFFFFF"
-                android:layout_marginTop="2dp"/>
+                android:layout_marginTop="1dp"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

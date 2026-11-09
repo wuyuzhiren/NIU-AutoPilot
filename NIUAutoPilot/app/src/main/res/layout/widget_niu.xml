@@ -6,32 +6,92 @@
     android:background="@drawable/bg_widget"
     android:padding="10dp">
 
-    <!-- 状态条 -->
-    <TextView
-        android:id="@+id/tv_widget_status"
+    <!-- 顶部：车辆图 + 状态 + 电量 + 刷新 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="小牛助手"
-        android:textSize="12sp"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:layout_marginBottom="8dp"
-        android:singleLine="true"
-        android:ellipsize="end"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
 
-    <!-- 第一行：开机 关机 -->
+        <ImageView
+            android:id="@+id/iv_widget_car"
+            android:layout_width="56dp"
+            android:layout_height="40dp"
+            android:scaleType="fitCenter"
+            android:layout_marginEnd="6dp"/>
+
+        <TextView
+            android:id="@+id/tv_widget_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="小牛助手"
+            android:textSize="11sp"
+            android:textColor="#B3FFFFFF"
+            android:singleLine="true"
+            android:ellipsize="end"/>
+
+        <!-- 电量：进度条 + 百分比文字叠加 -->
+        <FrameLayout
+            android:layout_width="72dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp">
+
+            <ProgressBar
+                android:id="@+id/pb_widget_battery"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="18dp"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/bg_battery_progress"
+                android:indeterminate="false"/>
+
+            <TextView
+                android:id="@+id/tv_widget_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="--%"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="2"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_widget_refresh"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@android:drawable/ic_menu_rotate"
+                android:tint="#80FFFFFF"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 第一行：开机(绿) 关机(红) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="4dp">
         <TextView
             android:id="@+id/btn_widget_on"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="开机"
+            android:text="⚡ 开机"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
@@ -45,7 +105,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="关机"
+            android:text="⏻ 关机"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
@@ -56,18 +116,19 @@
             android:focusable="true"/>
     </LinearLayout>
 
-    <!-- 第二行：坐桶 自动 -->
+    <!-- 第二行：坐桶(橙) 自动(紫) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
         <TextView
             android:id="@+id/btn_widget_seat"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="开坐桶"
+            android:text="🪑 坐桶"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
@@ -81,7 +142,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="自动开机"
+            android:text="🔄 自动开机"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
@@ -91,4 +152,19 @@
             android:clickable="true"
             android:focusable="true"/>
     </LinearLayout>
+
+    <!-- 第三行：一键诊断(棕) -->
+    <TextView
+        android:id="@+id/btn_widget_diagnostic"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8"
+        android:text="🔍 一键诊断（60秒）"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        android:background="@drawable/bg_widget_btn_diagnostic"
+        android:clickable="true"
+        android:focusable="true"/>
 </LinearLayout>

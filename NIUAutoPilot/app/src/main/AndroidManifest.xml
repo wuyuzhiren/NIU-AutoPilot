@@ -5,13 +5,17 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
@@ -29,12 +33,59 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- v2.16: 扫码导入 token，niubattery://token?value=xxx -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="niubattery" android:host="token"/>
+            </intent-filter>
         </activity>
+
+        <activity
+            android:name=".calibration.CalibrationActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".LogActivity"
+            android:label="诊断日志"
+            android:exported="false"/>
+
+        <activity
+            android:name=".AiSettingsActivity"
+            android:label="AI 调参设置"
+            android:exported="false"/>
+
+        <activity
+            android:name=".AiTuningActivity"
+            android:label="AI 智能调参"
+            android:exported="false"/>
+
+        <!-- v2.22 FileProvider：用于安装更新APK -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
 
         <service
             android:name=".BleService"
             android:exported="false"
+            android:stopWithTask="false"
             android:foregroundServiceType="connectedDevice"/>
+
+        <receiver
+            android:name=".WatchdogReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.niu.autopilot.WATCHDOG"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".NiuWidgetProvider"
@@ -44,7 +95,7 @@
                 <action android:name="com.niu.autopilot.WIDGET_POWER_ON"/>
                 <action android:name="com.niu.autopilot.WIDGET_POWER_OFF"/>
                 <action android:name="com.niu.autopilot.WIDGET_SEAT"/>
-                <action android:name="com.niu.autopilot.WIDGET_AUTO"/>
+                <action android:name="com.niu.autopilot.WIDGET_AUTO"/>`r`n                <action android:name="com.niu.autopilot.ACTION_STATE_SYNC"/>
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -59,11 +110,19 @@
                 <action android:name="com.niu.autopilot.BAR_POWER_ON"/>
                 <action android:name="com.niu.autopilot.BAR_POWER_OFF"/>
                 <action android:name="com.niu.autopilot.BAR_SEAT"/>
-                <action android:name="com.niu.autopilot.BAR_AUTO"/>
+                <action android:name="com.niu.autopilot.BAR_AUTO"/>`r`n                <action android:name="com.niu.autopilot.ACTION_STATE_SYNC"/>
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_niu_bar"/>
+        </receiver>
+        <!-- v2.50 对外自动化指令接口（小爱同学/Tasker）-->
+        <receiver
+            android:name=".AutoCommandReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.niu.autopilot.AUTO_COMMAND"/>
+            </intent-filter>
         </receiver>
     </application>
 </manifest>

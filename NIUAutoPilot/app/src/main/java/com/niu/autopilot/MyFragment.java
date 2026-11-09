@@ -1,8 +1,6 @@
 package com.niu.autopilot;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -25,7 +23,7 @@ public class MyFragment extends Fragment {
     private EditText etAccount, etPassword, etSn;
     private ImageView ivEye, ivEditSn, ivSnCheck;
     private CheckBox cbRemember;
-    private TextView btnLogin, tvLoggedAccount, btnLogout, btnSaveSn;
+    private TextView btnLogin, tvLoggedAccount, btnLogout, btnSaveSn, tvAppVersion;
     private View llLoginForm, llLoggedIn;
     private boolean passwordVisible = false;
     private boolean snEditable = false;
@@ -48,6 +46,7 @@ public class MyFragment extends Fragment {
         cbRemember = view.findViewById(R.id.cb_remember);
         btnLogin = view.findViewById(R.id.btn_login);
         tvLoggedAccount = view.findViewById(R.id.tv_logged_account);
+        tvAppVersion = view.findViewById(R.id.tv_app_version);
         btnLogout = view.findViewById(R.id.btn_logout);
         btnSaveSn = view.findViewById(R.id.btn_save_sn);
         llLoginForm = view.findViewById(R.id.ll_login_form);
@@ -58,6 +57,11 @@ public class MyFragment extends Fragment {
         btnLogin.setOnClickListener(v -> doLogin());
         btnLogout.setOnClickListener(v -> doLogout());
         btnSaveSn.setOnClickListener(v -> saveSn());
+        view.findViewById(R.id.btn_diagnostic_log).setOnClickListener(v -> openLogActivity());
+        view.findViewById(R.id.btn_ai_tuning).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), AiTuningActivity.class)));
+        view.findViewById(R.id.btn_ai_settings).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), AiSettingsActivity.class)));
 
         refreshUi();
     }
@@ -96,20 +100,19 @@ public class MyFragment extends Fragment {
         }
         act.settings.setAccount(account);
         act.settings.setPassword(password);
-        act.settings.setRememberPassword(cbRemember.isChecked());
-        btnLogin.setText("登录中...");
-        btnLogin.setEnabled(false);
-
+        if (cbRemember.isChecked()) {
+            act.settings.setRememberPassword(true);
+        } else {
+            act.settings.setRememberPassword(false);
+        }
         String sn = act.settings.getSn();
         if (sn.isEmpty()) {
-            act.settings.setAccount(account);
-            act.settings.setPassword(password);
-            btnLogin.setText("登录");
-            btnLogin.setEnabled(true);
             act.toast("账号已保存，请先绑定车辆SN");
             refreshUi();
             return;
         }
+        btnLogin.setText("登录中...");
+        btnLogin.setEnabled(false);
         act.http.queryAccState(account, password, sn, (ok, msg) -> act.runOnUiThread(() -> {
             btnLogin.setText("登录");
             btnLogin.setEnabled(true);
@@ -146,7 +149,6 @@ public class MyFragment extends Fragment {
         ivSnCheck.setVisibility(View.VISIBLE);
         act.toast("SN已保存");
         act.appendLog("车辆SN已绑定: " + sn);
-        // 保存后设为只读
         snEditable = false;
         etSn.setFocusable(false);
         etSn.setFocusableInTouchMode(false);
@@ -159,7 +161,17 @@ public class MyFragment extends Fragment {
         return phone.substring(0, 3) + "****" + phone.substring(phone.length() - 4);
     }
 
+    private void openLogActivity() {
+        startActivity(new Intent(getActivity(), LogActivity.class));
+    }
+
     public void refreshUi() {
+        try {
+            if (tvAppVersion != null) {
+                String ver = act.getPackageManager().getPackageInfo(act.getPackageName(), 0).versionName;
+                tvAppVersion.setText("小牛靠近开机助手 v" + ver);
+            }
+        } catch (Exception ignored) {}
         if (act == null || getView() == null) return;
         String account = act.settings.getAccount();
         boolean loggedIn = !account.isEmpty() && !act.settings.getPassword().isEmpty();
@@ -182,7 +194,6 @@ public class MyFragment extends Fragment {
         etSn.setText(sn);
         if (!sn.isEmpty()) {
             ivSnCheck.setVisibility(View.VISIBLE);
-            // 默认只读
             etSn.setFocusable(false);
             etSn.setFocusableInTouchMode(false);
             etSn.setCursorVisible(false);

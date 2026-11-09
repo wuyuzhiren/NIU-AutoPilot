@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================================ -->
+    <!-- 间距 / 字号 / 圆角令牌（适配 360dp~480dp 基准宽度）            -->
+    <!-- ============================================================ -->
+
+    <!-- 页面边距 -->
+    <dimen name="vehicle_page_margin">16dp</dimen>
+    <dimen name="vehicle_page_margin_small">12dp</dimen>
+
+    <!-- 卡片与面板 -->
+    <dimen name="vehicle_card_padding">16dp</dimen>
+    <dimen name="vehicle_card_radius">12dp</dimen>
+    <dimen name="vehicle_card_stroke">1dp</dimen>
+    <dimen name="vehicle_card_gap">12dp</dimen>
+
+    <!-- 车辆舞台区 -->
+    <dimen name="vehicle_stage_height">280dp</dimen>
+    <dimen name="vehicle_body_padding">24dp</dimen>
+
+    <!-- 按钮 -->
+    <dimen name="vehicle_button_size">64dp</dimen>
+    <dimen name="vehicle_button_gap">24dp</dimen>
+    <dimen name="vehicle_button_radius">32dp</dimen>
+    <dimen name="vehicle_button_icon_size">28dp</dimen>
+
+    <!-- 字号 -->
+    <dimen name="vehicle_text_page_title">24sp</dimen>
+    <dimen name="vehicle_text_status_title">32sp</dimen>
+    <dimen name="vehicle_text_data_large">48sp</dimen>
+    <dimen name="vehicle_text_button_label">14sp</dimen>
+    <dimen name="vehicle_text_aux">12sp</dimen>
+    <dimen name="vehicle_text_label">11sp</dimen>
+
+    <!-- 灯光与光效 -->
+    <dimen name="vehicle_light_radius">6dp</dimen>
+    <dimen name="vehicle_light_glow_radius">16dp</dimen>
+    <dimen name="vehicle_ring_stroke">2dp</dimen>
+    <dimen name="vehicle_glow_bottom_height">48dp</dimen>
+
+    <!-- 信息卡片 -->
+    <dimen name="vehicle_info_card_height">72dp</dimen>
+    <dimen name="vehicle_info_icon_size">20dp</dimen>
+</resources>

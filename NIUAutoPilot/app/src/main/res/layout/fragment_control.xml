@@ -1,277 +1,229 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- v2.78 科幻HUD控制页（融合 scifi-home-kit 视觉层，保留全部功能ID） -->
+<!--
+  ============================================================================
+  控制页布局 v3.4 重构版（设计规范 docs/DESIGN-SPEC.md §3 / §4.1 / §4.2）
+  ============================================================================
+  用途：供 review 后替换 app/src/main/res/layout/fragment_control.xml
+  说明：本文件不直接进入 res/layout，先在 docs/ 下评审。
+
+  【6 区信息架构，从上到下】
+    ① 状态区     : 已开机/已关机 + 连接徽章 + 上次操作 + 自动模式状态
+    ② 车辆舞台   : 180dp（原 220dp），灯效载体
+    ③ 快捷操作   : 4 个 56dp 圆钮（原 64dp），首屏内、单手可达
+    ④ 骑行数据   : 陪伴天数胶囊置顶 + 三列大字并列 + 三格指标
+    ⑤ 状态明细   : 信号 / 电量 / 日志 + 自动模式主开关 + 可折叠详细参数
+    ⑥ 一键诊断   : ghost 按钮，降级到最底部防误触
+
+  【ID 冻结约束】
+    原有 42 个 ID 全部保留（41 个被 ControlFragment.java 绑定，
+    vehicle_stage_container 被 ScifiPowerAnimator 使用），一个未删未改名。
+    新增 3 个 ID（仅供折叠交互，需 Java 侧新接线）：
+      tv_recent_rides_toggle : 最近骑行 展开/收起 标题行
+      tv_auto_expand         : 自动模式 详细参数 展开/收起 标题行
+      ll_auto_detail         : 自动模式 详细参数 容器（默认 gone）
+
+  【前置资源依赖】
+    本布局刻意只使用「工程已存在」的资源，做到零新增即可编译，唯一例外：
+      res/drawable/bg_ds_ghost_btn.xml  ← 需从 docs/bg_ds_ghost_btn.xml 复制过去
+    其余全部复用既有：home_page_bg / home_vehicle_stage_bg / home_action_button_bg
+                      / bg_sci_card_glow / bg_sci_badge / bg_battery_progress
+                      / bg_btn_auto_start / ic_power_on / ic_power_off
+                      / ic_bucket / ic_status
+
+  【配色收敛说明】
+    规范 §2.1 定义的语义层 ds_* 尚未落地，为让本文件「复制即可编译」，
+    这里直接引用等价的既有资源（ds_accent = sci_energy、ds_text = sci_text、
+    ds_text_dim = sci_text_dim、ds_border = sci_border）。语义层建好后可整批替换：
+      ds_accent      -> @color/sci_energy
+      ds_accent_alt  -> @color/sci_orange
+      ds_ok          -> @color/sci_green
+      ds_error       -> @color/sci_red
+      ds_surface     -> 卡片统一用 @drawable/bg_sci_card_glow
+      ds_text        -> @color/sci_text
+      ds_text_dim    -> @color/sci_text_dim
+      ds_border      -> @color/sci_border
+      ds_divider     -> @color/sci_badge_stroke（40% 强调色，主题感知）
+
+  【需要 Java 侧配合的改动（不改会失效或退化）】
+    1. tv_mileage_refresh 原为文字「刷新」，Java 有 setText("刷新")/setText("…")；
+       若要用图标 ⟳，需同步改 Java 的 setText 逻辑。
+    2. tv_recent_rides_toggle / tv_auto_expand / ll_auto_detail 需新增点击监听做
+       visibility 切换与 ▸/▾ 文案切换。
+    3. tv_status_badge 原用 bg_badge_connected / bg_badge_disconnected；
+       本版统一为 bg_sci_badge，Java 里 setBackgroundResource 需相应调整或移除。
+    4. ll_recent_rides 默认 gone，Java 填充数据后需保持 gone 由用户手动展开。
+  ============================================================================
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@drawable/home_page_bg">
+    android:background="@drawable/home_page_bg"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="32dp">
 
-        <!-- 页面标题 -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="控制 · HOLO-CAM"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@color/sci_energy"
-            android:layout_marginBottom="16dp"
-            android:shadowColor="@color/sci_shadow"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="8"/>
+        <!-- ============================================================
+             ① 状态区 status_zone
+             作用：打开 App 的第一落点，0.5 秒内读完「车现在什么样」
+             ============================================================ -->
 
-        <!-- ========== 科幻车辆舞台（玻璃卡片+内发光） ========== -->
+        <!-- 第 1 行：状态主字（Hero 30sp）+ 连接徽章 + 扫描脉冲 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_power_state"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="已关机"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/sci_text"
+                android:includeFontPadding="false"
+                android:letterSpacing="0.02"
+                android:maxLines="1"
+                android:shadowColor="@color/vehicle_glow_blue"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="12"/>
+
+            <TextView
+                android:id="@+id/tv_status_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="未连接"
+                android:textSize="11sp"
+                android:textColor="@color/sci_text"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@drawable/bg_sci_badge"/>
+
+            <com.niu.autopilot.ui.ScanPulseView
+                android:id="@+id/scan_pulse"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="4dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- 第 2 行：上次操作 + 上次校准 + 校准入口 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
+
+            <TextView
+                android:id="@+id/tv_last_cmd"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="上次操作: --"
+                android:textSize="11sp"
+                android:textColor="@color/sci_text_dim"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <TextView
+                android:id="@+id/tv_last_calib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="上次校准: --"
+                android:textSize="10sp"
+                android:textColor="@color/sci_text_dim"
+                android:layout_marginStart="8dp"/>
+
+            <TextView
+                android:id="@+id/btn_calibrate_quick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="校准"
+                android:textSize="11sp"
+                android:textColor="@color/sci_energy"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:background="@drawable/bg_sci_badge"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
+
+        <!-- 第 3 行：自动模式运行状态（只读，主开关在 ⑤ 区） -->
+        <TextView
+            android:id="@+id/tv_auto_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="自动模式: 未启动"
+            android:textSize="11sp"
+            android:textColor="@color/sci_text_dim"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <!-- ============================================================
+             ② 车辆舞台 stage_area  180dp
+             作用：视觉锚点 + 所有灯效的载体（LightFxLayer 在最上层 SCREEN 混合）
+             注意：clipChildren/clipToPadding 必须为 false，否则光晕会被裁掉
+             ============================================================ -->
+        <FrameLayout
+            android:id="@+id/vehicle_stage_container"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="12dp"
+            android:padding="8dp"
             android:background="@drawable/home_vehicle_stage_bg"
-            android:layout_marginBottom="20dp"
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <!-- 深空车辆舞台 -->
-            <LinearLayout
+            <com.niu.autopilot.vehicle.VehicleStageView
+                android:id="@+id/vehicle_anim"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/home_vehicle_stage_bg"
-                android:padding="12dp">
+                android:layout_height="match_parent"/>
+        </FrameLayout>
 
-                <!-- 车辆舞台容器（ScifiPowerAnimator 扫描线/能量环/光晕 overlay 挂载层） -->
-                <FrameLayout
-                    android:id="@+id/vehicle_stage_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp">
-
-                    <!-- 车辆动画（v1.1 组件：单一车身图+Canvas光效） -->
-                    <com.niu.autopilot.vehicle.VehicleStageView
-                        android:id="@+id/vehicle_anim"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"/>
-                </FrameLayout>
-
-                <!-- 状态行：已开机/已关机 + 连接徽章 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:id="@+id/tv_power_state"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="已关机"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/sci_text"
-                        android:shadowColor="@color/vehicle_glow_blue"
-                        android:shadowRadius="10"
-                        android:shadowDx="0"
-                        android:shadowDy="0"/>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
-                        <TextView
-                            android:id="@+id/tv_status_badge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="未连接"
-                            android:textSize="11sp"
-                            android:textColor="@color/sci_text"
-                            android:paddingHorizontal="10dp"
-                            android:paddingVertical="4dp"
-                            android:background="@drawable/bg_sci_badge"/>
-                        <com.niu.autopilot.ui.ScanPulseView
-                            android:id="@+id/scan_pulse"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginTop="6dp"
-                            android:visibility="gone"/>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tv_last_cmd"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="上次操作: --"
-                    android:textSize="12sp"
-                    android:textColor="@color/sci_text_dim"
-                    android:layout_marginTop="4dp"/>
-
-                <TextView
-                    android:id="@+id/btn_calibrate_quick"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="校准"
-                    android:textSize="12sp"
-                    android:textColor="@color/sci_energy"
-                    android:background="@drawable/bg_sci_badge"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="3dp"
-                    android:layout_marginTop="6dp"/>
-
-                <TextView
-                    android:id="@+id/tv_last_calib"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="上次校准: --"
-                    android:textSize="11sp"
-                    android:textColor="@color/sci_text_dim"
-                    android:layout_marginTop="2dp"/>
-            </LinearLayout>
-
-            <!-- 信息区域（玻璃拟态卡片） -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/home_glass_card_bg"
-                android:padding="16dp">
-
-                <!-- 信号行 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <TextView
-                        android:id="@+id/tv_signal_bars"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="▁▁▁▁"
-                        android:textSize="20sp"
-                        android:textColor="@color/sci_text_dim"
-                        android:letterSpacing="0.1"/>
-                    <TextView
-                        android:id="@+id/tv_rssi_val"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="信号: -- dBm"
-                        android:textSize="13sp"
-                        android:textColor="@color/sci_text_dim"
-                        android:layout_marginStart="10dp"/>
-                    <TextView
-                        android:id="@+id/tv_signal_dist"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="距离: --"
-                        android:textSize="13sp"
-                        android:textColor="@color/sci_text_dim"/>
-                </LinearLayout>
-
-                <!-- 阈值刻度条 -->
-                <com.niu.autopilot.ui.RssiScaleView
-                    android:id="@+id/rssi_scale"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="6dp"/>
-                <!-- v2.50: 距离可视化进度条 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="4dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="远" android:textSize="11sp" android:textColor="@color/sci_text_dim"/>
-                    <ProgressBar
-                        android:id="@+id/pb_distance"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="0dp"
-                        android:layout_height="8dp"
-                        android:layout_weight="1"
-                        android:layout_marginStart="6dp"
-                        android:layout_marginEnd="6dp"
-                        android:max="100"
-                        android:progress="0"
-                        android:progressDrawable="@drawable/bg_battery_progress"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="近" android:textSize="11sp" android:textColor="@color/sci_text_dim"/>
-                </LinearLayout>
-
-                <!-- 电量 + 自动模式 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="8dp">
-                    <ProgressBar
-                        android:id="@+id/pb_battery"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="48dp"
-                        android:layout_height="6dp"
-                        android:max="100"
-                        android:progress="0"
-                        android:progressDrawable="@drawable/bg_battery_progress"
-                        android:indeterminate="false"
-                        android:layout_marginEnd="8dp"/>
-                    <TextView
-                        android:id="@+id/tv_battery"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="未同步"
-                        android:textSize="14sp"
-                        android:textColor="@color/sci_text_dim"/>
-                    <TextView
-                        android:id="@+id/tv_auto_state"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="自动模式: 未启动"
-                        android:textSize="12sp"
-                        android:textColor="@color/sci_text_dim"/>
-                </LinearLayout>
-
-                <!-- 日志预览 -->
-                <TextView
-                    android:id="@+id/tv_log_preview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="11sp"
-                    android:textColor="@color/sci_text_dim"
-                    android:fontFamily="monospace"
-                    android:layout_marginTop="8dp"
-                    android:maxLines="2"
-                    android:ellipsize="end"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- ========== 快捷控制：圆形渐变按钮 ========== -->
+        <!-- ============================================================
+             ③ 快捷操作 actions_zone
+             作用：4 个主操作，首屏内、单手可达（P2 硬指标）
+             尺寸：56dp 圆钮（原 64dp），图标 26dp，标签 12sp
+             ============================================================ -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="快捷控制"
-            android:textSize="18sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="快捷操作"
+            android:textSize="13sp"
             android:textStyle="bold"
-            android:textColor="@color/sci_energy"
-            android:layout_marginBottom="14dp"/>
+            android:textColor="@color/sci_text_dim"
+            android:letterSpacing="0.10"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="20dp">
+            android:baselineAligned="false">
 
-            <!-- 开机：HUD 圆形按钮 -->
+            <!-- 开机：能量主色 -->
             <LinearLayout
                 android:id="@+id/btn_power_on"
                 android:layout_width="0dp"
@@ -279,31 +231,37 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:clickable="true"
                 android:focusable="true">
+
                 <FrameLayout
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
                     android:background="@drawable/home_action_button_bg">
+
                     <ImageView
                         android:id="@+id/iv_power_on_icon"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_power_on"
+                        android:contentDescription="开机"
                         app:tint="@color/vehicle_energy_blue"/>
                 </FrameLayout>
+
                 <TextView
                     android:id="@+id/tv_power_on_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="开机"
-                    android:textSize="13sp"
-                    android:textColor="@color/sci_text"
-                    android:layout_marginTop="6dp"/>
+                    android:textSize="12sp"
+                    android:textColor="@color/sci_text"/>
             </LinearLayout>
 
-            <!-- 关机：HUD 圆形按钮 -->
+            <!-- 关机：告警红 -->
             <LinearLayout
                 android:id="@+id/btn_power_off"
                 android:layout_width="0dp"
@@ -311,31 +269,37 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:clickable="true"
                 android:focusable="true">
+
                 <FrameLayout
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
                     android:background="@drawable/home_action_button_bg">
+
                     <ImageView
                         android:id="@+id/iv_power_off_icon"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_power_off"
+                        android:contentDescription="关机"
                         app:tint="@color/vehicle_alert_red"/>
                 </FrameLayout>
+
                 <TextView
                     android:id="@+id/tv_power_off_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="关机"
-                    android:textSize="13sp"
-                    android:textColor="@color/sci_text"
-                    android:layout_marginTop="6dp"/>
+                    android:textSize="12sp"
+                    android:textColor="@color/sci_text"/>
             </LinearLayout>
 
-            <!-- 坐桶：HUD 圆形按钮 -->
+            <!-- 坐桶：次强调橙 -->
             <LinearLayout
                 android:id="@+id/btn_seat"
                 android:layout_width="0dp"
@@ -343,30 +307,36 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:clickable="true"
                 android:focusable="true">
+
                 <FrameLayout
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
                     android:background="@drawable/home_action_button_bg">
+
                     <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_bucket"
+                        android:contentDescription="开坐桶"
                         app:tint="@color/vehicle_energy_orange"/>
                 </FrameLayout>
+
                 <TextView
                     android:id="@+id/tv_seat_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="坐桶"
-                    android:textSize="13sp"
-                    android:textColor="@color/sci_text"
-                    android:layout_marginTop="6dp"/>
+                    android:textSize="12sp"
+                    android:textColor="@color/sci_text"/>
             </LinearLayout>
 
-            <!-- 查状态：HUD 圆形按钮 -->
+            <!-- 查状态：中性弱化 -->
             <LinearLayout
                 android:id="@+id/btn_check_state"
                 android:layout_width="0dp"
@@ -374,123 +344,649 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:clickable="true"
                 android:focusable="true">
+
                 <FrameLayout
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
                     android:background="@drawable/home_action_button_bg">
+
                     <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_status"
+                        android:contentDescription="查状态"
                         app:tint="@color/vehicle_text_secondary"/>
                 </FrameLayout>
+
                 <TextView
                     android:id="@+id/tv_check_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="查状态"
-                    android:textSize="13sp"
-                    android:textColor="@color/sci_text"
-                    android:layout_marginTop="6dp"/>
+                    android:textSize="12sp"
+                    android:textColor="@color/sci_text"/>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 一键诊断：紫色渐变长按钮 -->
-        <LinearLayout
-            android:id="@+id/btn_diagnostic"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:background="@drawable/bg_btn_diagnostic"
-            android:layout_marginBottom="20dp"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@android:drawable/ic_menu_compass"
-                android:tint="#FFFFFF"/>
-            <TextView
-                android:id="@+id/tv_diagnostic_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="一键诊断（60秒）"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:layout_marginStart="10dp"/>
-        </LinearLayout>
-
-        <!-- ========== 自动开关机 ========== -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="自动开关机"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/sci_energy"
-            android:layout_marginBottom="10dp"/>
-
+        <!-- ============================================================
+             ④ 骑行数据 mileage_zone（本次重构重点，规范 §4.2）
+             层级：陪伴天数(L0) -> 三列大字(L1) -> 三格指标(L2) -> 最近骑行(L3)
+             ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_sci_card_glow"
-            android:padding="16dp">
+            android:layout_marginTop="24dp"
+            android:padding="16dp"
+            android:background="@drawable/bg_sci_card_glow">
+
+            <!-- 标题行：骑行数据 + 刷新 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="10dp">
+                android:gravity="center_vertical">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="靠近自动开机"
-                    android:textSize="15sp"
-                    android:textColor="@color/sci_text"/>
-                <Switch android:id="@+id/sw_auto_on" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    android:text="骑行数据"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/sci_text"
+                    android:letterSpacing="0.04"/>
+
+                <TextView
+                    android:id="@+id/tv_mileage_refresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="40dp"
+                    android:minHeight="40dp"
+                    android:gravity="center"
+                    android:text="刷新"
+                    android:textSize="12sp"
+                    android:textColor="@color/sci_energy"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/sci_border"/>
+
+            <!-- 陪伴天数：居中置顶，做成胶囊（不再是一行裸字） -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="10dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="离开自动关机"
-                    android:textSize="15sp"
-                    android:textColor="@color/sci_text"/>
-                <Switch android:id="@+id/sw_auto_off" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <TextView
-                android:id="@+id/tv_auto_running"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="12sp"
-                android:textColor="@color/sci_green"
                 android:gravity="center"
-                android:layout_marginTop="8dp"/>
-            <Button
-                android:id="@+id/btn_auto"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:id="@+id/tv_bind_days"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="12sp"
+                    android:textColor="@color/sci_energy"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:background="@drawable/bg_sci_badge"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+            </LinearLayout>
+
+            <!-- 三列大字并列：总里程 / 今日里程 / 上次骑行（同字号 28sp，靠颜色语义分主次） -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tv_total_mileage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="—"
+                        android:textStyle="bold"
+                        android:textColor="@color/sci_energy"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:fontFeatureSettings="tnum"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="18sp"
+                        app:autoSizeMaxTextSize="28sp"
+                        app:autoSizeStepGranularity="1sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="总里程 km"
+                        android:textSize="11sp"
+                        android:textColor="@color/sci_text_dim"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="28dp"
+                    android:background="@color/sci_badge_stroke"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tv_today_mileage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="—"
+                        android:textStyle="bold"
+                        android:textColor="@color/sci_orange"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:fontFeatureSettings="tnum"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="18sp"
+                        app:autoSizeMaxTextSize="28sp"
+                        app:autoSizeStepGranularity="1sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="今日里程 km"
+                        android:textSize="11sp"
+                        android:textColor="@color/sci_text_dim"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="28dp"
+                    android:background="@color/sci_badge_stroke"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tv_last_ride"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="—"
+                        android:textStyle="bold"
+                        android:textColor="@color/sci_text"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:fontFeatureSettings="tnum"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="18sp"
+                        app:autoSizeMaxTextSize="28sp"
+                        app:autoSizeStepGranularity="1sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="上次骑行 km"
+                        android:textSize="11sp"
+                        android:textColor="@color/sci_text_dim"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 三列与三格之间的横向分隔 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/sci_border"/>
+
+            <!-- 三格指标：平均速度 / 最高车速 / 骑行时间 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginTop="12dp"
-                android:text="启动自动模式"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/bg_btn_auto_start"/>
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tv_avg_speed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="—"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/sci_text"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:fontFeatureSettings="tnum"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="13sp"
+                        app:autoSizeMaxTextSize="17sp"
+                        app:autoSizeStepGranularity="1sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="平均速度"
+                        android:textSize="11sp"
+                        android:textColor="@color/sci_text_dim"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="20dp"
+                    android:background="@color/sci_badge_stroke"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tv_max_speed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="—"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/sci_text"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:fontFeatureSettings="tnum"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="13sp"
+                        app:autoSizeMaxTextSize="17sp"
+                        app:autoSizeStepGranularity="1sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="最高车速"
+                        android:textSize="11sp"
+                        android:textColor="@color/sci_text_dim"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="20dp"
+                    android:background="@color/sci_badge_stroke"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tv_ride_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="—"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/sci_text"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:fontFeatureSettings="tnum"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeMaxTextSize="17sp"
+                        app:autoSizeStepGranularity="1sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="骑行时间"
+                        android:textSize="11sp"
+                        android:textColor="@color/sci_text_dim"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 最近骑行：默认折叠（第二层信息，不该常态占高度） -->
+            <TextView
+                android:id="@+id/tv_recent_rides_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:text="▸ 最近骑行"
+                android:textSize="12sp"
+                android:textColor="@color/sci_text_dim"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"/>
+
+            <LinearLayout
+                android:id="@+id/ll_recent_rides"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- ============================================================
+             ⑤ 状态明细 detail_zone
+             作用：电够不够 / 信号好不好 / 自动模式开不开
+             自动模式采用「主开关常显 + 详细参数可折叠」（lead 决策 1）
+             ============================================================ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="24dp"
+            android:padding="16dp"
+            android:background="@drawable/bg_sci_card_glow">
+
+            <!-- 两列栅格：左=信号，右=电量/距离 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <!-- 左列：信号 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_signal_bars"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="▁▁▁▁"
+                            android:textSize="18sp"
+                            android:textColor="@color/sci_text_dim"
+                            android:letterSpacing="0.1"/>
+
+                        <TextView
+                            android:id="@+id/tv_rssi_val"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="信号: -- dBm"
+                            android:textSize="12sp"
+                            android:textColor="@color/sci_text_dim"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
+                    </LinearLayout>
+
+                    <com.niu.autopilot.ui.RssiScaleView
+                        android:id="@+id/rssi_scale"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="4dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_signal_dist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="距离: --"
+                        android:textSize="11sp"
+                        android:textColor="@color/sci_text_dim"/>
+                </LinearLayout>
+
+                <!-- 右列：电量 + 距离进度 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ProgressBar
+                            android:id="@+id/pb_battery"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="44dp"
+                            android:layout_height="6dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:indeterminate="false"
+                            android:progressDrawable="@drawable/bg_battery_progress"/>
+
+                        <TextView
+                            android:id="@+id/tv_battery"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="未同步"
+                            android:textSize="13sp"
+                            android:textColor="@color/sci_text_dim"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
+                    </LinearLayout>
+
+                    <!-- 距离条：远 <- 近 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="远"
+                            android:textSize="10sp"
+                            android:textColor="@color/sci_text_dim"/>
+
+                        <ProgressBar
+                            android:id="@+id/pb_distance"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="8dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/bg_battery_progress"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="近"
+                            android:textSize="10sp"
+                            android:textColor="@color/sci_text_dim"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_log_preview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text=""
+                        android:textSize="10sp"
+                        android:textColor="@color/sci_text_dim"
+                        android:fontFamily="monospace"
+                        android:maxLines="1"
+                        android:ellipsize="end"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/sci_border"/>
+
+            <!-- 自动模式主开关（常显，最高频的每日决策） -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="自动模式（靠近自动开机）"
+                    android:textSize="14sp"
+                    android:textColor="@color/sci_text"/>
+
+                <Switch
+                    android:id="@+id/sw_auto_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <!-- 详细参数：可折叠（一次性配置，默认不占视觉） -->
+            <TextView
+                android:id="@+id/tv_auto_expand"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:text="▸ 详细参数"
+                android:textSize="12sp"
+                android:textColor="@color/sci_energy"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"/>
+
+            <LinearLayout
+                android:id="@+id/ll_auto_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="离开自动关机"
+                        android:textSize="14sp"
+                        android:textColor="@color/sci_text"/>
+
+                    <Switch
+                        android:id="@+id/sw_auto_off"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_auto_running"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text=""
+                    android:textSize="12sp"
+                    android:textColor="@color/sci_green"/>
+
+                <Button
+                    android:id="@+id/btn_auto"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:text="启动自动模式"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFFFF"
+                    android:background="@drawable/bg_btn_auto_start"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ============================================================
+             ⑥ 一键诊断 diagnostic_zone
+             作用：低频、耗时 60s 的动作，降级为 ghost 按钮放最底部防误触
+             ============================================================ -->
+        <LinearLayout
+            android:id="@+id/btn_diagnostic"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/bg_ds_ghost_btn"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_compass"
+                android:contentDescription="一键诊断"
+                app:tint="@color/sci_text_dim"/>
+
+            <TextView
+                android:id="@+id/tv_diagnostic_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="一键诊断（60秒）"
+                android:textSize="14sp"
+                android:textColor="@color/sci_text_dim"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

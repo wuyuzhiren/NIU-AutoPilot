@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 信息卡片背景 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/vehicle_panel_bg" />
+    <corners android:radius="@dimen/vehicle_card_radius" />
+    <stroke
+        android:width="@dimen/vehicle_card_stroke"
+        android:color="@color/vehicle_panel_stroke" />
+</shape>

@@ -105,8 +105,7 @@ public class SettingsFragment extends Fragment {
         etBatteryDeviceId.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String v2 = etBatteryDeviceId.getText().toString().trim();
-                if ("cloudmink".equals(act.settings.getBatteryPlatform())) act.settings.setCloudminkDeviceNo(v2);
-                else act.settings.setBatteryDeviceId(v2);
+                if (!"cloudmink".equals(act.settings.getBatteryPlatform())) act.settings.setBatteryDeviceId(v2);
             }
         });
         // v2.77 鑫能 appId / sign 可配置（接口变更时可改，无需改代码）
@@ -224,8 +223,8 @@ public class SettingsFragment extends Fragment {
             }
             if ("cloudmink".equals(plat)) {
                 act.settings.setCloudminkCookie(t);
-                act.settings.setCloudminkDeviceNo(etBatteryDeviceId.getText().toString().trim());
-                Toast.makeText(act, "云貂 Cookie 已保存，点「从云貂换电同步」读取电量（Cookie 过期后重新抓包）", Toast.LENGTH_LONG).show();
+                // v3.9.2 设备编号不再手填，由同步时的套餐接口自动获取
+                Toast.makeText(act, "云貂 Cookie 已保存，点「从云貂换电同步」读取电量（设备编号自动获取，Cookie 过期后重新抓包）", Toast.LENGTH_LONG).show();
                 act.appendLog("云貂换电 Cookie 已保存");
             } else {
                 act.settings.setBatteryToken(t);
@@ -312,12 +311,9 @@ public class SettingsFragment extends Fragment {
         btnPlatformCustom.setBackgroundResource("custom".equals(plat) ? R.drawable.bg_btn_primary : R.drawable.bg_btn_outline);
         etBatteryUrl.setVisibility(custom ? View.VISIBLE : View.GONE);
         etBatteryUrl.setText(act.settings.getBatteryApiUrl());
-        // v2.76 鑫能出行：电池ID输入框；v3.9 云貂换电：设备编号 deviceNo
-        etBatteryDeviceId.setVisibility((xinneng || cloudmink) ? View.VISIBLE : View.GONE);
-        if (cloudmink) {
-            etBatteryDeviceId.setHint("云貂设备编号 deviceNo（BT 开头，换电池后更新）");
-            etBatteryDeviceId.setText(act.settings.getCloudminkDeviceNo());
-        } else {
+        // v2.76 鑫能出行：电池ID输入框；v3.9 云貂换电：编号由接口自动获取，不再手填
+        etBatteryDeviceId.setVisibility(xinneng ? View.VISIBLE : View.GONE);
+        if (xinneng) {
             etBatteryDeviceId.setHint("电池ID（device/detail?idDevice=xxx，换电池后重新抓包）");
             etBatteryDeviceId.setText(act.settings.getBatteryDeviceId());
         }
@@ -331,7 +327,7 @@ public class SettingsFragment extends Fragment {
         String saved = cloudmink ? act.settings.getCloudminkCookie() : act.settings.getBatteryToken();
         etBatteryToken.setText("");
         String baseHint = cloudmink
-                ? "粘贴云貂 Cookie（整段，含 https_waf_cookie 与 JSESSIONID）"
+                ? "粘贴云貂 Cookie（整段，含 https_waf_cookie 与 JSESSIONID）；设备编号自动获取，换电池无需修改"
                 : (xinneng
                     ? "粘贴鑫能出行 token（抓包 device/detail 请求的 access-token 值）"
                     : "粘贴" + platName + " token（抓包电量接口的 Authorization 值）");
@@ -512,10 +508,13 @@ public class SettingsFragment extends Fragment {
             tvBatterySet.setTextColor(0xFF9E9E9E);
         } else {
             String txt = p + "%  ·  " + b.syncedText();
-            // v3.9 云貂换电：附带套餐到期日
+            // v3.9 云貂换电：套餐到期日 + 套餐名 + 当前电池编号（编号自动获取）
             if ("cloudmink".equals(act.settings.getBatteryPlatform())) {
                 String end = act.settings.getCloudminkPlanEnd();
-                if (end != null && !end.isEmpty()) txt += "  ·  套餐至 " + end;
+                String plan = act.settings.getCloudminkPlanName();
+                String sn = act.settings.getCloudminkDeviceNo();
+                txt += "\n" + (plan.isEmpty() ? "云貂换电" : plan) + (end.isEmpty() ? "" : "  ·  套餐至 " + end);
+                if (!sn.isEmpty()) txt += "\n当前电池 " + sn + "（自动获取）";
             }
             tvBatterySet.setText(txt);
             tvBatterySet.setTextColor(NiuBatteryClient.colorFor(level));
@@ -543,6 +542,7 @@ public class SettingsFragment extends Fragment {
 
     /** 内置更新日志（新版本在最前），与 version.json 的 changelog 保持同步 */
     private static final String[] CHANGELOG = {
+            "v3.9.2：云貂换电设备编号改为自动获取——同步时从套餐接口读取当前租用电池编号（换电池后自动跟随），设置页不再需要手填；同时显示套餐名与当前电池编号",
             "v3.9.1：云貂换电修正实测参数——goodsHandler 改为 com.aotaki（原 aotaxi 拼写错误，服务端报「产品的的处理类异常」）；默认设备编号修正为 BT207206012MKLN260201024（原值少一个 L，查不到电池）；设备编号无效时不再误判 0% 电量",
             "v3.9：换电列表新增「云貂换电」（时间戳/电量/套餐三接口，Cookie 鉴权，显示套餐到期日）；电量 30%/20%/15%/10% 分级低电量提醒（前台弹窗、后台通知，每档提醒一次）；每次自动开机强制刷新换电电量（不受车辆账号配置和10分钟缓存限制）",
             "v2.73：换电池后自动识别新电池（鑫能每次同步强制重新发现，不再显示旧电池电量）；日志导出合并诊断数据，AI调参不再提示无RSSI样本；空日志拒绝上传",

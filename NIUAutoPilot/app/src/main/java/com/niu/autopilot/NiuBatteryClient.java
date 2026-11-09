@@ -306,12 +306,6 @@ public class NiuBatteryClient {
             return;
         }
         cookie = cookie.trim();
-        String deviceNo = settings.getCloudminkDeviceNo();
-        if (deviceNo == null || deviceNo.trim().isEmpty()) {
-            if (cb != null) cb.onDone(false, -1, "请填写云貂设备编号 deviceNo（BT 开头）");
-            return;
-        }
-        deviceNo = deviceNo.trim();
 
         try {
             // 1) 时间戳接口：失败不影响后续
@@ -320,9 +314,37 @@ public class NiuBatteryClient {
                 AppLogger.get(ctx).log("BATTERY", "云貂换电|TIMESTAMP|" + tsResp);
             } catch (Exception ignored) {}
 
-            // 2) 电量
+            // 2) 套餐接口：账号维度，返回当前租用电池编号（换电后自动跟随，无需手填）
+            String deviceNo = "";
+            String handler = CLOUDMINK_GOODS_HANDLER;
+            try {
+                String info = httpRequest("POST", CLOUDMINK_INFO,
+                        "sysId=" + java.net.URLEncoder.encode(CLOUDMINK_SYS_ID, "UTF-8")
+                                + "&appId=" + java.net.URLEncoder.encode(CLOUDMINK_APP_ID, "UTF-8"), cookie, false);
+                deviceNo = parseCloudminkDeviceNo(info);
+                String h = parseCloudminkGoodsHandler(info);
+                if (h != null && !h.isEmpty()) handler = h;
+                String end = parseCloudminkEndDate(info);
+                if (end != null && !end.isEmpty()) settings.setCloudminkPlanEnd(end);
+                String plan = parseCloudminkPlanName(info);
+                if (plan != null && !plan.isEmpty()) settings.setCloudminkPlanName(plan);
+                if (!deviceNo.isEmpty()) settings.setCloudminkDeviceNo(deviceNo);
+            } catch (Exception e) {
+                try { AppLogger.get(ctx).log("BATTERY", "云貂换电|INFO_FAIL|" + e.getMessage()); } catch (Exception ignored) {}
+            }
+
+            // 3) 接口没拿到编号时用上次缓存（仅首次使用且套餐接口失败才会走到报错）
+            if (deviceNo == null || deviceNo.trim().isEmpty()) deviceNo = settings.getCloudminkDeviceNo();
+            if (deviceNo == null || deviceNo.trim().isEmpty()) {
+                String msg = "无法自动获取电池编号：套餐接口没有返回 deviceNo\n请确认 Cookie 有效（过期后请重新抓包粘贴）再同步";
+                if (cb != null) cb.onDone(false, -1, msg);
+                return;
+            }
+            deviceNo = deviceNo.trim();
+
+            // 4) 电量（入参用套餐接口返回的 goodsHandler，服务端改配置也能跟随）
             String body = "deviceNo=" + java.net.URLEncoder.encode(deviceNo, "UTF-8")
-                    + "&goodsHandler=" + java.net.URLEncoder.encode(CLOUDMINK_GOODS_HANDLER, "UTF-8");
+                    + "&goodsHandler=" + java.net.URLEncoder.encode(handler, "UTF-8");
             String resp = httpRequest("POST", CLOUDMINK_SOC, body, cookie, false);
             int percent = parseCloudminkPercent(resp);
             if (percent < 0 || percent > 100) {
@@ -331,8 +353,8 @@ public class NiuBatteryClient {
                 if (err != null) {
                     msg = "云貂电量获取失败：" + err;
                 } else {
-                    // success=true 但没有 totalVol：设备编号查不到电池，服务端默认回 percent:0
-                    msg = "未查到设备 " + deviceNo + " 的电池数据\n请核对设备编号 deviceNo（换电池后编号会变，可在云貂小程序「我的电池」查看）";
+                    // success=true 但没有 totalVol：编号查不到电池，服务端默认回 percent:0
+                    msg = "未查到当前电池（" + deviceNo + "）的数据\n若是刚换了电池，请再点一次同步自动获取新编号；仍不行说明 Cookie 已过期，请重新抓包";
                 }
                 if (resp != null && (resp.contains("login") || resp.contains("登录"))) {
                     msg = "云貂 Cookie 已过期，请重新抓包更新 Cookie";
@@ -352,15 +374,6 @@ public class NiuBatteryClient {
             if (cb != null) cb.onDone(true, percent, "同步成功");
             try { AppLogger.get(ctx).log("BATTERY", "云貂换电|OK|" + percent + "%|ID:" + deviceNo); } catch (Exception ignored) {}
             BatteryAlertHelper.check(ctx, percent, "云貂换电");
-
-            // 3) 套餐信息（只用于显示到期日）
-            try {
-                String info = httpRequest("POST", CLOUDMINK_INFO,
-                        "sysId=" + java.net.URLEncoder.encode(CLOUDMINK_SYS_ID, "UTF-8")
-                                + "&appId=" + java.net.URLEncoder.encode(CLOUDMINK_APP_ID, "UTF-8"), cookie, false);
-                String end = parseCloudminkEndDate(info);
-                if (end != null) settings.setCloudminkPlanEnd(end);
-            } catch (Exception ignored) {}
         } catch (Exception e) {
             String em = e.getMessage() == null ? e.toString() : e.getMessage();
             String msg;
@@ -436,6 +449,46 @@ public class NiuBatteryClient {
             }
         } catch (Exception ignored) {}
         return -1;
+    }
+
+    /**
+     * v3.9.2 从套餐响应自动取当前电池编号：
+     * 顶层 deviceNo → customerMerchant.deviceNo → customerMerchant.rentalDeviceNo。
+     * 账号维度返回，换电池后自动跟随，用户无需手填。
+     */
+    private String parseCloudminkDeviceNo(String resp) {
+        if (resp == null || resp.trim().isEmpty()) return "";
+        try {
+            JSONObject j = new JSONObject(resp.trim());
+            String d = j.optString("deviceNo", "").trim();
+            if (!d.isEmpty()) return d;
+            JSONObject cm = j.optJSONObject("customerMerchant");
+            if (cm != null) {
+                d = cm.optString("deviceNo", "").trim();
+                if (d.isEmpty()) d = cm.optString("rentalDeviceNo", "").trim();
+                if (!d.isEmpty()) return d;
+            }
+        } catch (Exception ignored) {}
+        return "";
+    }
+
+    /** 套餐响应里的 goodsHandler（服务端真实配置，比写死常量更稳） */
+    private String parseCloudminkGoodsHandler(String resp) {
+        if (resp == null || resp.trim().isEmpty()) return "";
+        try {
+            return new JSONObject(resp.trim()).optString("goodsHandler", "").trim();
+        } catch (Exception ignored) {}
+        return "";
+    }
+
+    /** 套餐名，如「贵阳72V60AH30天换电卡」 */
+    private String parseCloudminkPlanName(String resp) {
+        if (resp == null || resp.trim().isEmpty()) return "";
+        try {
+            JSONObject card = new JSONObject(resp.trim()).optJSONObject("timeLimitCard");
+            if (card != null) return card.optString("cardPackageName", "").trim();
+        } catch (Exception ignored) {}
+        return "";
     }
 
     /** 云貂错误信息：success=false 时的 message/msg */

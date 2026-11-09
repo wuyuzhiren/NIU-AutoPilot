@@ -178,10 +178,10 @@ public class Settings {
     /** 云貂 Cookie（抓包请求头整段复制，含 https_waf_cookie / JSESSIONID，过期后重新抓包） */
     public String getCloudminkCookie() { return sp.getString("cloudmink_cookie", ""); }
     public void setCloudminkCookie(String v) { sp.edit().putString("cloudmink_cookie", v).apply(); }
-    /** 云貂设备编号 deviceNo（BT 开头，换电池后更新；v3.9.1 按账号实测电池编号修正） */
+    /** 云貂设备编号 deviceNo：同步时由套餐接口自动获取并缓存在此，用户不需要手填；换电池后自动更新 */
     public String getCloudminkDeviceNo() {
-        String v = sp.getString("cloudmink_device_no", "BT207206012MKLN260201024");
-        // v3.9 首发默认值少了一个 L（该编号查不到电池），老数据自动迁移
+        String v = sp.getString("cloudmink_device_no", "");
+        // v3.9 首发默认值少一个 L（该编号查不到电池），老数据自动纠正
         if ("BT207206012MKN260201024".equals(v)) v = "BT207206012MKLN260201024";
         return v;
     }
@@ -189,6 +189,9 @@ public class Settings {
     /** 云貂套餐到期日（接口返回 endDate 格式化后的 yyyy-MM-dd） */
     public String getCloudminkPlanEnd() { return sp.getString("cloudmink_plan_end", ""); }
     public void setCloudminkPlanEnd(String v) { sp.edit().putString("cloudmink_plan_end", v).apply(); }
+    /** 云貂套餐名（如「贵阳72V60AH30天换电卡」） */
+    public String getCloudminkPlanName() { return sp.getString("cloudmink_plan_name", ""); }
+    public void setCloudminkPlanName(String v) { sp.edit().putString("cloudmink_plan_name", v).apply(); }
 
     // ========== v3.9 低电量提醒（已提醒过的最低档位：0/30/20/15/10） ==========
     public int getBatteryAlertStage() { return sp.getInt("battery_alert_stage", 0); }

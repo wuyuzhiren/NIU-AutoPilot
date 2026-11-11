@@ -317,10 +317,13 @@ public class NiuBatteryClient {
             // 2) 套餐接口：账号维度，返回当前租用电池编号（换电后自动跟随，无需手填）
             String deviceNo = "";
             String handler = CLOUDMINK_GOODS_HANDLER;
+            boolean infoOk = false;
+            String infoErr = null;
             try {
                 String info = httpRequest("POST", CLOUDMINK_INFO,
                         "sysId=" + java.net.URLEncoder.encode(CLOUDMINK_SYS_ID, "UTF-8")
                                 + "&appId=" + java.net.URLEncoder.encode(CLOUDMINK_APP_ID, "UTF-8"), cookie, false);
+                infoOk = true;
                 deviceNo = parseCloudminkDeviceNo(info);
                 String h = parseCloudminkGoodsHandler(info);
                 if (h != null && !h.isEmpty()) handler = h;
@@ -336,10 +339,23 @@ public class NiuBatteryClient {
                     settings.setCloudminkDeviceNo(deviceNo);
                 }
             } catch (Exception e) {
-                try { AppLogger.get(ctx).log("BATTERY", "云貂换电|INFO_FAIL|" + e.getMessage()); } catch (Exception ignored) {}
+                infoErr = e.getMessage() == null ? e.toString() : e.getMessage();
+                try { AppLogger.get(ctx).log("BATTERY", "云貂换电|INFO_FAIL|" + infoErr); } catch (Exception ignored) {}
             }
 
-            // 3) 接口没拿到编号时用上次缓存（仅首次使用且套餐接口失败才会走到报错）
+            // 3) 套餐接口失败（Cookie 过期/网络异常）时不拿旧编号硬查，否则会显示上一块电池的电量，误以为同步成功
+            if (!infoOk) {
+                String msg = "无法获取当前电池编号，云貂 Cookie 可能已过期\n请在小程序里重新抓包，更新 Cookie 后再同步"
+                        + "\n（" + infoErr + "）";
+                if (settings.getBatteryPercent() >= 0 && settings.getBatterySyncedAt() > 0) {
+                    msg += "\n上次电量 " + settings.getBatteryPercent() + "%（未更新）";
+                }
+                if (cb != null) cb.onDone(false, -1, msg);
+                try { AppLogger.get(ctx).log("BATTERY", "云貂换电|FAIL|INFO:" + infoErr); } catch (Exception ignored) {}
+                return;
+            }
+
+            // 接口成功但没解析出编号：才回退上次缓存
             if (deviceNo == null || deviceNo.trim().isEmpty()) deviceNo = settings.getCloudminkDeviceNo();
             if (deviceNo == null || deviceNo.trim().isEmpty()) {
                 String msg = "无法自动获取电池编号：套餐接口没有返回 deviceNo\n请确认 Cookie 有效（过期后请重新抓包粘贴）再同步";

@@ -327,7 +327,7 @@ public class SettingsFragment extends Fragment {
         String saved = cloudmink ? act.settings.getCloudminkCookie() : act.settings.getBatteryToken();
         etBatteryToken.setText("");
         String baseHint = cloudmink
-                ? "粘贴云貂 Cookie（整段，含 https_waf_cookie 与 JSESSIONID）；设备编号自动获取，换电池无需修改"
+                ? "粘贴云貂 Cookie（整段，含 https_waf_cookie 与 JSESSIONID）；设备编号自动获取，换电池后靠近车辆或打开 App 会自动刷新"
                 : (xinneng
                     ? "粘贴鑫能出行 token（抓包 device/detail 请求的 access-token 值）"
                     : "粘贴" + platName + " token（抓包电量接口的 Authorization 值）");
@@ -542,6 +542,7 @@ public class SettingsFragment extends Fragment {
 
     /** 内置更新日志（新版本在最前），与 version.json 的 changelog 保持同步 */
     private static final String[] CHANGELOG = {
+            "v3.9.3：换电池后不用再等开机——手机靠近车辆、每次打开 App、手动同步都会重新向云貂取「当前电池编号」再查电量；靠近刷新 3 分钟节流；编号变化写入日志",
             "v3.9.2：云貂换电设备编号改为自动获取——同步时从套餐接口读取当前租用电池编号（换电池后自动跟随），设置页不再需要手填；同时显示套餐名与当前电池编号",
             "v3.9.1：云貂换电修正实测参数——goodsHandler 改为 com.aotaki（原 aotaxi 拼写错误，服务端报「产品的的处理类异常」）；默认设备编号修正为 BT207206012MKLN260201024（原值少一个 L，查不到电池）；设备编号无效时不再误判 0% 电量",
             "v3.9：换电列表新增「云貂换电」（时间戳/电量/套餐三接口，Cookie 鉴权，显示套餐到期日）；电量 30%/20%/15%/10% 分级低电量提醒（前台弹窗、后台通知，每档提醒一次）；每次自动开机强制刷新换电电量（不受车辆账号配置和10分钟缓存限制）",

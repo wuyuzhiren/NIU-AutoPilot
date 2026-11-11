@@ -263,6 +263,29 @@ public class BleService extends Service {
         }
     }
 
+    /** v3.9.3: 靠近车辆时刷新换电电量（含重新取当前电池编号），换电池后自动跟随，3 分钟节流 */
+    private long lastNearBatterySync = 0;
+    private void maybeRefreshBatteryNear() {
+        try {
+            Settings s = new Settings(this);
+            if (!NiuBatteryClient.isConfigured(s)) return;
+            long now = System.currentTimeMillis();
+            if (now - lastNearBatterySync < 180000) return;
+            lastNearBatterySync = now;
+            new NiuBatteryClient(this).queryBattery((ok, percent, msg) -> {
+                if (ok) {
+                    uiLog("靠近刷新电量: " + percent + "%");
+                    updateNotification();
+                    sendBroadcast(new Intent(NiuWidgetProvider.ACTION_STATE_SYNC));
+                } else {
+                    uiLog("靠近刷新电量失败: " + msg);
+                }
+            });
+        } catch (Exception e) {
+            uiLog("靠近刷新电量异常: " + e.getMessage());
+        }
+    }
+
     @SuppressWarnings("deprecation")
     private void startForegroundCompat() {
         Notification n = buildNotification(lastStatus);
@@ -691,6 +714,8 @@ public class BleService extends Service {
 
         if (nearConfirmed) {
             farFired = false;
+            // v3.9.3: 手机靠近/连上车就刷新换电电量（换电池后无需等下次开机，体验同极驰）
+            maybeRefreshBatteryNear();
             if (s.isAutoOn() && !nearFired) {
                 if ((now - lastAutoOnTime) > cooldown) {
                     lastAutoOnTime = now;

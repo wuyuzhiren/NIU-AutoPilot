@@ -328,7 +328,13 @@ public class NiuBatteryClient {
                 if (end != null && !end.isEmpty()) settings.setCloudminkPlanEnd(end);
                 String plan = parseCloudminkPlanName(info);
                 if (plan != null && !plan.isEmpty()) settings.setCloudminkPlanName(plan);
-                if (!deviceNo.isEmpty()) settings.setCloudminkDeviceNo(deviceNo);
+                if (!deviceNo.isEmpty()) {
+                    String old = settings.getCloudminkDeviceNo();
+                    if (!deviceNo.equals(old)) {
+                        try { AppLogger.get(ctx).log("BATTERY", "云貂换电池|" + old + " -> " + deviceNo); } catch (Exception ignored) {}
+                    }
+                    settings.setCloudminkDeviceNo(deviceNo);
+                }
             } catch (Exception e) {
                 try { AppLogger.get(ctx).log("BATTERY", "云貂换电|INFO_FAIL|" + e.getMessage()); } catch (Exception ignored) {}
             }
@@ -460,14 +466,15 @@ public class NiuBatteryClient {
         if (resp == null || resp.trim().isEmpty()) return "";
         try {
             JSONObject j = new JSONObject(resp.trim());
-            String d = j.optString("deviceNo", "").trim();
-            if (!d.isEmpty()) return d;
+            // v3.9.3: customerMerchant 维度优先（明确是「当前租用电池」），顶层 deviceNo 可能是固定绑定值，放最后
             JSONObject cm = j.optJSONObject("customerMerchant");
+            String d;
             if (cm != null) {
                 d = cm.optString("deviceNo", "").trim();
                 if (d.isEmpty()) d = cm.optString("rentalDeviceNo", "").trim();
                 if (!d.isEmpty()) return d;
             }
+            return j.optString("deviceNo", "").trim();
         } catch (Exception ignored) {}
         return "";
     }

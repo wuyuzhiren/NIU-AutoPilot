@@ -131,6 +131,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         BatteryAlertHelper.onResume(this);
+        // v3.9.3: 每次打开 App 刷新一次换电电量（含重新取当前电池编号），换电池后自动跟随
+        maybeRefreshBatteryOnOpen();
+    }
+
+    private long lastBatteryOpenSync = 0;
+    private void maybeRefreshBatteryOnOpen() {
+        try {
+            Settings s = new Settings(this);
+            if (!NiuBatteryClient.isConfigured(s)) return;
+            long now = System.currentTimeMillis();
+            if (now - lastBatteryOpenSync < 60000) return;
+            lastBatteryOpenSync = now;
+            new NiuBatteryClient(this).queryBattery((ok, percent, msg) -> {
+                if (ok) sendBroadcast(new android.content.Intent(NiuWidgetProvider.ACTION_STATE_SYNC));
+            });
+        } catch (Exception ignored) {}
     }
 
     @Override

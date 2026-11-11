@@ -1,7 +1,7 @@
 {
-  "versionCode": 112,
-  "versionName": "3.9.2",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.2.apk",
-  "apkUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.2.apk",
-  "changelog": "v3.9.2: 云貂换电设备编号改为自动获取，同步时从套餐接口读取当前租用电池编号，换电池自动跟随，无需手填；设置页显示套餐名与当前电池编号。v3.9.1: 修正 goodsHandler 拼写与设备编号。v3.9: 新增云貂换电、30%/20%/15%/10% 四级低电量提醒、每次自动开机强制刷新电量。"
+  "versionCode": 113,
+  "versionName": "3.9.3",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.3.apk",
+  "apkUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.3.apk",
+  "changelog": "v3.9.3: 换电池后不用再等开机——手机靠近车辆、每次打开 App、手动同步都会重新向云貂取当前电池编号再查电量；靠近刷新 3 分钟节流；编号变化写入日志。v3.9.2: 云貂换电设备编号改为自动获取。v3.9.1: 修正 goodsHandler 拼写与设备编号。v3.9: 新增云貂换电、30%/20%/15%/10% 四级低电量提醒、每次自动开机强制刷新电量。"
 }

@@ -1,0 +1,31 @@
+=== 小牛靠近开机助手 一键诊断日志 ===
+诊断开始: 2026-11-11 23:22:17
+诊断时长: 60 秒
+
+=== 当前配置 ===
+靠近阈值: -67 dBm
+离开阈值: -83 dBm
+滞回区间: 16 dB
+扫描间隔: 1000 ms
+连续达标: 3 次
+触发策略: 强信号1次 / 提前趋势2次 / 连续达标3次
+冷却时间: 30 秒
+滤波窗口: 3
+自动开机: true
+自动关机: false
+目标MAC: 54:88:FE:42:69:74
+目标名称: NIU Link 6974
+车辆状态: 已关机
+
+=== 诊断数据（时间 | 类型 | 详情） ===
+23:22:17.155 | DIAG | 开始诊断记录，时长 60 秒，文件: diagnostic_20261111_232217.txt
+23:22:17.268 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:18.271 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:19.275 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:20.279 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:21.282 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:22.284 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:23.287 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:24.290 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:25.293 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y
+23:22:26.299 | RSSI | raw=-99 smooth=-99.0 near=-67 far=-83 consec=0 nearOk=N farOk=Y

@@ -45,7 +45,7 @@ public class ScanPulseView extends View {
         if (running) return;
         running = true;
         animator = ValueAnimator.ofFloat(0f, 1f);
-        animator.setDuration(1800);
+        animator.setDuration(2600);
         animator.setRepeatCount(ValueAnimator.INFINITE);
         animator.setInterpolator(new LinearInterpolator());
         animator.addUpdateListener(a -> {
@@ -86,9 +86,9 @@ public class ScanPulseView extends View {
         float maxR = Math.min(getWidth(), getHeight()) / 2f - 2;
         int baseColor = connected ? CONNECTED_COLOR : RING_COLOR;
 
-        // 旋转渐变底环
+        // 旋转渐变底环（与呼吸主循环同速，避免两层节奏打架）
         canvas.save();
-        canvas.rotate(sweepAngle * 2, cx, cy);
+        canvas.rotate(sweepAngle, cx, cy);
         sweepPaint.setShader(new SweepGradient(cx, cy,
                 new int[]{0x00000000, 0x40000000 | (baseColor & 0x00FFFFFF), 0x00000000},
                 null));
@@ -96,12 +96,12 @@ public class ScanPulseView extends View {
         canvas.restore();
         sweepPaint.setShader(null);
 
-        // 3圈扩散环
+        // 2圈扩散环（原来3圈+2倍速旋转，视觉过密）
         ringPaint.setStyle(Paint.Style.STROKE);
-        for (int i = 0; i < 3; i++) {
-            float p = (progress + i * 0.33f) % 1f;
+        for (int i = 0; i < 2; i++) {
+            float p = (progress + i * 0.5f) % 1f;
             float r = 3f + p * maxR;
-            int alpha = (int) (220 * (1f - p));
+            int alpha = (int) (160 * (1f - p));
             ringPaint.setColor(Color.argb(Math.max(0, alpha),
                     Color.red(baseColor), Color.green(baseColor), Color.blue(baseColor)));
             ringPaint.setStrokeWidth(2.5f - p * 1.5f);

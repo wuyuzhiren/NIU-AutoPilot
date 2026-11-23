@@ -102,7 +102,7 @@ public class VehicleAnimView extends View {
         scanlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         scanlinePaint.setStyle(Paint.Style.FILL);
         scanlinePaint.setColor(0xFF00D4FF);
-        scanlinePaint.setAlpha(26);
+        scanlinePaint.setAlpha(16);
 
         // 能量环
         energyRingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -119,7 +119,7 @@ public class VehicleAnimView extends View {
     /** 开机后持续呼吸光晕 */
     private void startGlowPulse() {
         glowAnimator = ValueAnimator.ofFloat(0f, 1f);
-        glowAnimator.setDuration(2000);
+        glowAnimator.setDuration(2600);
         glowAnimator.setRepeatCount(ValueAnimator.INFINITE);
         glowAnimator.setRepeatMode(ValueAnimator.REVERSE);
         glowAnimator.addUpdateListener(a -> {
@@ -129,10 +129,10 @@ public class VehicleAnimView extends View {
         glowAnimator.start();
     }
 
-    /** HUD水平扫描线循环（3.2秒一圈） */
+    /** HUD水平扫描线循环（5.2秒一圈，与 2.6 秒呼吸光晕成 1:2 节拍） */
     private void startScanlineLoop() {
         scanlineAnimator = ValueAnimator.ofFloat(0f, 1f);
-        scanlineAnimator.setDuration(3200);
+        scanlineAnimator.setDuration(5200);
         scanlineAnimator.setRepeatCount(ValueAnimator.INFINITE);
         scanlineAnimator.setRepeatMode(ValueAnimator.RESTART);
         scanlineAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -177,7 +177,7 @@ public class VehicleAnimView extends View {
         // ===== 1. 开机能量环（底部椭圆光晕 + 扩散环） =====
         if (powerOn && glowPulse >= 0) {
             float glowRadius = carW * 0.58f;
-            float glowAlpha = 0.06f + glowPulse * 0.10f;
+            float glowAlpha = 0.04f + glowPulse * 0.07f;
             glowPaint.setStyle(Paint.Style.FILL);
             glowPaint.setShader(new RadialGradient(cx, cy + carH * 0.30f, glowRadius,
                     new int[]{(int)(glowAlpha * 255) << 24 | 0xFF00D4FF, 0x0000D4FF},
@@ -187,7 +187,7 @@ public class VehicleAnimView extends View {
             glowPaint.setShader(null);
 
             // 扩散能量环
-            energyRingPaint.setAlpha((int)(140 * (1 - glowPulse * 0.3f)));
+            energyRingPaint.setAlpha((int)(90 * (1 - glowPulse * 0.3f)));
             float ringR = carW * (0.30f + glowPulse * 0.25f);
             canvas.drawOval(new RectF(cx - ringR, cy + carH * 0.28f - ringR * 0.28f,
                     cx + ringR, cy + carH * 0.28f + ringR * 0.28f), energyRingPaint);

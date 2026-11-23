@@ -321,7 +321,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_bucket"
+                        android:src="@drawable/ic_seat_scooter"
                         android:contentDescription="开坐桶"
                         app:tint="@color/vehicle_energy_orange"/>
                 </FrameLayout>
@@ -892,6 +892,28 @@
                     android:layout_height="wrap_content"/>
             </LinearLayout>
 
+            <!-- v3.9.6 自动模式状态 + 启动/停止按钮移到折叠区外，主页常显（不再藏进「详细参数」） -->
+            <TextView
+                android:id="@+id/tv_auto_running"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="@color/sci_green"/>
+
+            <Button
+                android:id="@+id/btn_auto"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:text="启动自动模式"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFFFF"
+                android:background="@drawable/bg_btn_auto_start"/>
+
             <!-- 详细参数：可折叠（一次性配置，默认不占视觉） -->
             <TextView
                 android:id="@+id/tv_auto_expand"
@@ -933,27 +955,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tv_auto_running"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
-                    android:text=""
-                    android:textSize="12sp"
-                    android:textColor="@color/sci_green"/>
-
-                <Button
-                    android:id="@+id/btn_auto"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="8dp"
-                    android:text="启动自动模式"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFFFF"
-                    android:background="@drawable/bg_btn_auto_start"/>
             </LinearLayout>
         </LinearLayout>
 

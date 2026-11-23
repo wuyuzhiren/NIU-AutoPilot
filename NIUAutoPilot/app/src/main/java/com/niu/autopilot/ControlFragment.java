@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -268,13 +269,14 @@ public class ControlFragment extends Fragment {
                 });
     }
 
-    /** 按钮点击缩放反馈动画 */
+    /** 按钮点击缩放反馈动画（统一 140ms 缓出，避免忽快忽慢） */
     private void animateButtonClick(View v) {
-        ScaleAnimation scale = new ScaleAnimation(1f, 0.9f, 1f, 0.9f,
+        ScaleAnimation scale = new ScaleAnimation(1f, 0.92f, 1f, 0.92f,
                 Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scale.setDuration(80);
+        scale.setDuration(70);
         scale.setRepeatCount(1);
         scale.setRepeatMode(Animation.REVERSE);
+        scale.setInterpolator(new DecelerateInterpolator());
         v.startAnimation(scale);
     }
 
@@ -338,10 +340,10 @@ public class ControlFragment extends Fragment {
         TextView tv = getView() != null ? getView().findViewById(labelId) : null;
         if (tv == null) return;
         tv.setText("✓ 成功");
-        // 文字闪烁动画
-        AlphaAnimation blink = new AlphaAnimation(0.3f, 1.0f);
-        blink.setDuration(200);
-        blink.setRepeatCount(2);
+        // 文字淡入动画（单次 260ms，不再连续闪烁 3 次）
+        AlphaAnimation blink = new AlphaAnimation(0.45f, 1.0f);
+        blink.setDuration(260);
+        blink.setInterpolator(new DecelerateInterpolator());
         tv.startAnimation(blink);
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (!commandSending) tv.setText(original);

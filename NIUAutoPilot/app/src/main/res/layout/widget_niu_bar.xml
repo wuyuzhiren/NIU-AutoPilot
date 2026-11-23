@@ -174,7 +174,7 @@
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:src="@android:drawable/ic_menu_more"
+                android:src="@drawable/ic_seat_scooter"
                 android:tint="#FFA726"/>
             <TextView
                 android:id="@+id/tv_bar_seat_label"

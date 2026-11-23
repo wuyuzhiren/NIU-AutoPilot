@@ -123,20 +123,33 @@
         android:layout_weight="1"
         android:orientation="horizontal"
         android:layout_marginBottom="4dp">
-        <TextView
+        <LinearLayout
             android:id="@+id/btn_widget_seat"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="🪑 坐桶"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:orientation="horizontal"
             android:gravity="center"
             android:background="@drawable/bg_widget_btn_seat"
             android:layout_marginEnd="4dp"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_seat_scooter"
+                android:tint="#FFFFFF"
+                android:contentDescription="坐桶"/>
+            <TextView
+                android:id="@+id/tv_widget_seat_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="坐桶"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"/>
+        </LinearLayout>
         <TextView
             android:id="@+id/btn_widget_auto"
             android:layout_width="0dp"

@@ -137,7 +137,11 @@ public class NiuWidgetBarProvider extends AppWidgetProvider {
 
         // 1. 极驰锐动电量
         String token = s.getBatteryToken();
-        if (token != null && !token.trim().isEmpty()) {
+        // v3.9.5 手动电量优先：手动锁定期间不查接口
+        if (s.isBatteryManualLocked()) {
+            batteryResult[0] = "手动电量";
+            checkAndRefresh(ctx, done, total, batteryResult, stateResult);
+        } else if (token != null && !token.trim().isEmpty()) {
             new NiuBatteryClient(ctx).queryBattery((ok, percent, msg) -> {
                 batteryResult[0] = ok ? ("电量" + percent + "%") : "电量失败";
                 checkAndRefresh(ctx, done, total, batteryResult, stateResult);

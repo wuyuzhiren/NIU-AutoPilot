@@ -140,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             Settings s = new Settings(this);
             if (!NiuBatteryClient.isConfigured(s)) return;
+            // v3.9.5 手动电量优先：手动锁定期间打开 App 也不刷新
+            if (s.isBatteryManualLocked()) return;
             long now = System.currentTimeMillis();
             if (now - lastBatteryOpenSync < 60000) return;
             lastBatteryOpenSync = now;

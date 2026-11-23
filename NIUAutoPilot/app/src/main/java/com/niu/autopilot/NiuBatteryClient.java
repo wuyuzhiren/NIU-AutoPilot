@@ -74,9 +74,11 @@ public class NiuBatteryClient {
         settings.setBatteryPercent(Math.max(0, Math.min(100, percent)));
         settings.setBatterySyncedAt(System.currentTimeMillis());
         settings.setBatterySource("manual");
+        // v3.9.5 手动电量优先：锁定后所有自动刷新都不覆盖，只有设置页「从X同步」会清锁
+        settings.setBatteryManualLocked(true);
         // v2.81: 手动录入也写入诊断日志
         try {
-            AppLogger.get(ctx).log("BATTERY", platformName(settings) + "|MANUAL|" + percent + "%");
+            AppLogger.get(ctx).log("BATTERY", platformName(settings) + "|MANUAL|" + percent + "%|LOCK");
         } catch (Exception ignored) {}
         // v3.9 手动录入同样触发低电量提醒
         BatteryAlertHelper.check(ctx, settings.getBatteryPercent(), platformName(settings));

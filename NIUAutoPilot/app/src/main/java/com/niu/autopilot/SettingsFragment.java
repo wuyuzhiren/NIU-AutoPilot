@@ -199,8 +199,8 @@ public class SettingsFragment extends Fragment {
             new NiuBatteryClient(act).manualSync(p);
             etBatteryManual.setText("");
             refreshBattery();
-            Toast.makeText(act, "电量已同步: " + p + "%", Toast.LENGTH_SHORT).show();
-            act.appendLog("电量手动同步: " + p + "%");
+            Toast.makeText(act, "已设为手动电量 " + p + "%：自动同步已暂停，只有点「" + btnBatterySync.getText() + "」才会重新读取平台电量", Toast.LENGTH_LONG).show();
+            act.appendLog("电量手动录入: " + p + "%（自动同步已暂停）");
         });
 
         // v2.63: 平台切换（极驰锐动 / 哈啰 / 鑫能出行 / 云貂换电 / 自定义API）
@@ -262,14 +262,23 @@ public class SettingsFragment extends Fragment {
             btnBatterySync.setEnabled(false);
             btnBatterySync.setText("同步中...");
             String platName = NiuBatteryClient.platformName(act.settings);
+            // v3.9.5 手动电量优先：点同步才解除锁定，成功则改回自动；失败保留手动值
+            boolean wasManual = act.settings.isBatteryManualLocked();
+            if (wasManual) act.appendLog("解除手动电量锁定，开始向" + platName + "同步");
+            act.settings.setBatteryManualLocked(false);
             new NiuBatteryClient(act).queryBattery((ok, p, msg) -> act.runOnUiThread(() -> {
                 btnBatterySync.setEnabled(true);
                 btnBatterySync.setText("从" + platName + "同步");
-                refreshBattery();
                 if (ok) {
-                    Toast.makeText(act, "电量同步成功: " + p + "%", Toast.LENGTH_SHORT).show();
+                    refreshBattery();
+                    Toast.makeText(act, "已切回自动同步，电量 " + p + "%", Toast.LENGTH_SHORT).show();
                     act.appendLog("电量自动同步(" + platName + "): " + p + "%");
                 } else {
+                    if (wasManual) {
+                        // 同步失败：恢复手动锁定，避免之后自动刷新把手动值冲掉
+                        act.settings.setBatteryManualLocked(true);
+                    }
+                    refreshBattery();
                     Toast.makeText(act, msg, Toast.LENGTH_LONG).show();
                 }
             }));
@@ -327,7 +336,7 @@ public class SettingsFragment extends Fragment {
         String saved = cloudmink ? act.settings.getCloudminkCookie() : act.settings.getBatteryToken();
         etBatteryToken.setText("");
         String baseHint = cloudmink
-                ? "粘贴云貂 Cookie（整段，含 https_waf_cookie 与 JSESSIONID）；设备编号自动获取，换电池后靠近车辆或打开 App 会自动刷新"
+                ? "粘贴云貂 Cookie（整段，含 https_waf_cookie 与 JSESSIONID）；设备编号自动获取；手填电量后进入手动模式，只有点同步才刷新"
                 : (xinneng
                     ? "粘贴鑫能出行 token（抓包 device/detail 请求的 access-token 值）"
                     : "粘贴" + platName + " token（抓包电量接口的 Authorization 值）");
@@ -507,14 +516,21 @@ public class SettingsFragment extends Fragment {
             tvBatterySet.setText("未同步");
             tvBatterySet.setTextColor(0xFF9E9E9E);
         } else {
-            String txt = p + "%  ·  " + b.syncedText();
+            boolean manual = "manual".equals(act.settings.getBatterySource()) || act.settings.isBatteryManualLocked();
+            String txt = p + "%  ·  " + (manual
+                    ? "手动电量（" + b.syncedText() + "，自动同步已暂停）"
+                    : b.syncedText());
             // v3.9 云貂换电：套餐到期日 + 套餐名 + 当前电池编号（编号自动获取）
             if ("cloudmink".equals(act.settings.getBatteryPlatform())) {
                 String end = act.settings.getCloudminkPlanEnd();
                 String plan = act.settings.getCloudminkPlanName();
                 String sn = act.settings.getCloudminkDeviceNo();
                 txt += "\n" + (plan.isEmpty() ? "云貂换电" : plan) + (end.isEmpty() ? "" : "  ·  套餐至 " + end);
-                if (!sn.isEmpty()) txt += "\n当前电池 " + sn + "（自动获取）";
+                if (manual) {
+                    txt += "\n手动模式下不向平台查询，点「从云貂换电同步」刷新";
+                } else if (!sn.isEmpty()) {
+                    txt += "\n当前电池 " + sn + "（自动获取）";
+                }
             }
             tvBatterySet.setText(txt);
             tvBatterySet.setTextColor(NiuBatteryClient.colorFor(level));
@@ -542,6 +558,7 @@ public class SettingsFragment extends Fragment {
 
     /** 内置更新日志（新版本在最前），与 version.json 的 changelog 保持同步 */
     private static final String[] CHANGELOG = {
+            "v3.9.5：新增「手动电量优先」——手填电量后自动同步全部暂停（靠近车辆/打开App/自动开机/桌面小部件都不再改电量），界面固定显示手动值并标注「手动电量」；只有点「从换电平台同步」才清锁重新读取，同步失败自动恢复手动值。换电池后 Cookie 失效、取不到新编号时，电量不会再被旧电池数据覆盖",
             "v3.9.4：云貂 Cookie 过期时不再拿旧电池编号硬查（原来会静默显示上一块电池的电量，让人以为同步成功）——现在直接提示「Cookie 已过期，请重新抓包」；实测确认套餐接口返回的就是当前新电池编号，换电后自动跟随",
             "v3.9.3：换电池后不用再等开机——手机靠近车辆、每次打开 App、手动同步都会重新向云貂取「当前电池编号」再查电量；靠近刷新 3 分钟节流；编号变化写入日志",
             "v3.9.2：云貂换电设备编号改为自动获取——同步时从套餐接口读取当前租用电池编号（换电池后自动跟随），设置页不再需要手填；同时显示套餐名与当前电池编号",

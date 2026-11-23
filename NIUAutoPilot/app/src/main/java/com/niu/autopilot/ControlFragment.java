@@ -219,6 +219,8 @@ public class ControlFragment extends Fragment {
     private void autoRefreshBattery() {
         try {
             Settings s = act.settings;
+            // v3.9.5 手动电量优先：手动锁定期间不自动刷新
+            if (s.isBatteryManualLocked()) return;
             String token = s.getBatteryToken();
             if (token == null || token.trim().isEmpty()) return;
             long lastSync = s.getBatterySyncedAt();

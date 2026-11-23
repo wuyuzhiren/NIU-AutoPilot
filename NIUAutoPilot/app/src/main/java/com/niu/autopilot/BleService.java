@@ -247,6 +247,11 @@ public class BleService extends Service {
             Settings s = new Settings(this);
             // v3.9: 云貂用 Cookie，其余平台用 token
             if (!NiuBatteryClient.isConfigured(s)) return;
+            // v3.9.5 手动电量优先：手动锁定期间不自动刷新
+            if (s.isBatteryManualLocked()) {
+                uiLog("手动电量模式，跳过开机自动同步（点设置页「从换电平台同步」恢复自动）");
+                return;
+            }
             // v2.21: 从1小时缩短到10分钟，确保每次开机基本都能刷新
             long lastSync = s.getBatterySyncedAt();
             if (lastSync > 0 && System.currentTimeMillis() - lastSync < 600000) return;
@@ -269,6 +274,8 @@ public class BleService extends Service {
         try {
             Settings s = new Settings(this);
             if (!NiuBatteryClient.isConfigured(s)) return;
+            // v3.9.5 手动电量优先：手动锁定期间靠近车辆也不刷新
+            if (s.isBatteryManualLocked()) return;
             long now = System.currentTimeMillis();
             if (now - lastNearBatterySync < 180000) return;
             lastNearBatterySync = now;

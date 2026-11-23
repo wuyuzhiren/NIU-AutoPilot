@@ -1,7 +1,7 @@
 {
-  "versionCode": 114,
-  "versionName": "3.9.4",
-  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.4.apk",
-  "apkUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.4.apk",
-  "changelog": "v3.9.4: 云貂 Cookie 过期时不再拿旧电池编号硬查（原来会静默显示上一块电池的电量，误以为同步成功），改为直接提示「Cookie 已过期，请重新抓包」；实测确认套餐接口返回的就是当前新电池编号。v3.9.3: 靠近车辆、打开 App、手动同步都会重新取当前电池编号再查电量。v3.9.2: 设备编号改为自动获取。v3.9: 新增云貂换电、30%/20%/15%/10% 四级低电量提醒、开机强制刷新电量。"
+  "versionCode": 115,
+  "versionName": "3.9.5",
+  "downloadUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.5.apk",
+  "apkUrl": "https://raw.githubusercontent.com/wuyuzhiren/NIU-AutoPilot/main/releases/app-v3.9.5.apk",
+  "changelog": "v3.9.5: 新增「手动电量优先」——手填电量后自动同步全部暂停（靠近车辆/打开 App/自动开机/桌面小部件都不再改电量），界面固定显示手动值并标注「手动电量」；只有点「从换电平台同步」才重新读取，同步失败自动恢复手动值。换电池后 Cookie 失效、取不到新编号时，电量不会再被旧电池数据覆盖。v3.9.4: 云貂 Cookie 过期时不再拿旧电池编号硬查，改为直接提示「Cookie 已过期，请重新抓包」。v3.9.3: 靠近车辆、打开 App、手动同步都会重新取当前电池编号再查电量。v3.9.2: 设备编号改为自动获取。v3.9: 新增云貂换电、30%/20%/15%/10% 四级低电量提醒、开机强制刷新电量。"
 }

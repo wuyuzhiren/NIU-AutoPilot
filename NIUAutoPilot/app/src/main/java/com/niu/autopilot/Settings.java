@@ -147,6 +147,15 @@ public class Settings {
     public String getBatterySource() { return sp.getString("battery_source", ""); }
     public void setBatterySource(String v) { sp.edit().putString("battery_source", v).apply(); }
 
+    // ========== v3.9.5 手动电量优先 ==========
+    /**
+     * 手动电量锁定：用户手填电量后置 true，所有自动刷新（靠近车辆 / 打开 App / 自动开机 / 桌面小部件）
+     * 全部跳过，界面固定显示手动值；只有设置页点「从换电平台同步」才清锁并重新走接口。
+     * 换电池后自动取号失败（Cookie 过期）时，这是保证电量不被旧电池数据覆盖的兜底。
+     */
+    public boolean isBatteryManualLocked() { return sp.getBoolean("battery_manual_lock", false); }
+    public void setBatteryManualLocked(boolean v) { sp.edit().putBoolean("battery_manual_lock", v).apply(); }
+
     // ========== v2.15 极驰锐动电量 token ==========
     /** 极驰锐动 JWT token（Charles 抓包 Authorization 请求头） */
     public String getBatteryToken() { return sp.getString("battery_token", ""); }

@@ -124,7 +124,11 @@ public class NiuWidgetProvider extends AppWidgetProvider {
         final String[] stateResult = {null};
 
         // 1. 换电电量（v3.9: 云貂用 Cookie，其余用 token）
-        if (NiuBatteryClient.isConfigured(s)) {
+        // v3.9.5 手动电量优先：手动锁定期间不查接口，直接沿用显示值
+        if (s.isBatteryManualLocked()) {
+            batteryResult[0] = "手动电量";
+            checkAndRefresh(ctx, done, total, batteryResult, stateResult);
+        } else if (NiuBatteryClient.isConfigured(s)) {
             new NiuBatteryClient(ctx).queryBattery((ok, percent, msg) -> {
                 batteryResult[0] = ok ? ("电量" + percent + "%") : "电量失败";
                 checkAndRefresh(ctx, done, total, batteryResult, stateResult);
@@ -171,7 +175,7 @@ public class NiuWidgetProvider extends AppWidgetProvider {
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             // v3.9: 电量刷新独立于车辆账号配置——每次自动开机都强制刷新换电电量
             //（云貂只需 Cookie，账号未配置也不影响电量）
-            if (NiuBatteryClient.isConfigured(s)) {
+            if (NiuBatteryClient.isConfigured(s) && !s.isBatteryManualLocked()) {
                 new NiuBatteryClient(ctx).queryBattery((ok2, percent, msg2) ->
                         ctx.sendBroadcast(new Intent(ACTION_STATE_SYNC)));
             } else {
